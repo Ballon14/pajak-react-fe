@@ -15,6 +15,7 @@ const Dashboard = () => {
         paidRecords: 0,
         unpaidRecords: 0,
     })
+    const [recentActivities, setRecentActivities] = useState([])
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -35,36 +36,100 @@ const Dashboard = () => {
 
             // Get statistics
             console.log("📊 Fetching statistics...")
-            const response = await taxRecordService.getStatistics()
+            const statsResponse = await taxRecordService.getStatistics()
             console.log("📊 Statistics API Response:", {
-                success: response.success,
-                data: response.data,
-                fullResponse: response,
+                success: statsResponse.success,
+                data: statsResponse.data,
+                fullResponse: statsResponse,
             })
 
-            if (response.success && response.data) {
+            if (statsResponse.success && statsResponse.data) {
                 const newStats = {
-                    totalTax: response.data.total_tax || 0,
-                    paidTax: response.data.paid_tax || 0,
-                    unpaidTax: response.data.unpaid_tax || 0,
-                    totalRecords: response.data.total_records || 0,
-                    paidRecords: response.data.paid_records || 0,
-                    unpaidRecords: response.data.unpaid_records || 0,
+                    totalTax: statsResponse.data.total_tax || 0,
+                    paidTax: statsResponse.data.paid_tax || 0,
+                    unpaidTax: statsResponse.data.unpaid_tax || 0,
+                    totalRecords: statsResponse.data.total_records || 0,
+                    paidRecords: statsResponse.data.paid_records || 0,
+                    unpaidRecords: statsResponse.data.unpaid_records || 0,
                 }
                 console.log("📈 Setting new stats:", newStats)
                 setStats(newStats)
             } else {
-                console.error("❌ Invalid statistics response:", response)
+                console.error("❌ Invalid statistics response:", statsResponse)
+            }
+
+            // Get recent activities (tax records)
+            console.log("📋 Fetching recent activities...")
+            const activitiesResponse = await taxRecordService.getAll()
+            console.log("📋 Activities API Response:", {
+                success: activitiesResponse.success,
+                data: activitiesResponse.data,
+            })
+
+            if (activitiesResponse.success && activitiesResponse.data) {
+                // Sort by created_at and take latest 5
+                const sortedActivities = activitiesResponse.data
+                    .sort(
+                        (a, b) =>
+                            new Date(b.created_at) - new Date(a.created_at)
+                    )
+                    .slice(0, 5)
+
+                console.log("📋 Setting recent activities:", sortedActivities)
+                setRecentActivities(sortedActivities)
+            } else {
+                console.error(
+                    "❌ Invalid activities response:",
+                    activitiesResponse
+                )
             }
         } catch (error) {
             console.error("❌ Error loading dashboard data:", {
                 message: error.message,
                 error: error,
+                stack: error.stack,
             })
         } finally {
             setLoading(false)
             console.log("✅ Dashboard loading complete")
         }
+    }
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case "lunas":
+                return "text-green-600 bg-green-100"
+            case "belum_lunas":
+                return "text-red-600 bg-red-100"
+            case "proses":
+                return "text-yellow-600 bg-yellow-100"
+            default:
+                return "text-gray-600 bg-gray-100"
+        }
+    }
+
+    const getStatusText = (status) => {
+        switch (status) {
+            case "lunas":
+                return "Lunas"
+            case "belum_lunas":
+                return "Belum Lunas"
+            case "proses":
+                return "Proses"
+            default:
+                return status
+        }
+    }
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString)
+        return date.toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+        })
     }
 
     if (loading) {
@@ -336,27 +401,89 @@ const Dashboard = () => {
                     <h2 className="text-lg font-semibold text-gray-900 mb-4">
                         Aktivitas Terbaru
                     </h2>
-                    <div className="text-center py-8">
-                        <svg
-                            className="w-16 h-16 text-gray-300 mx-auto mb-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                        </svg>
-                        <p className="text-gray-500">
-                            Belum ada aktivitas terbaru
-                        </p>
-                        <p className="text-sm text-gray-400">
-                            Mulai dengan menambahkan data pajak pertama Anda
-                        </p>
-                    </div>
+
+                    {recentActivities.length > 0 ? (
+                        <div className="space-y-4">
+                            {recentActivities.map((activity, index) => (
+                                <div
+                                    key={activity._id || index}
+                                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                                >
+                                    <div className="flex items-center space-x-4">
+                                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <svg
+                                                className="w-5 h-5 text-blue-600"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 className="font-medium text-gray-900">
+                                                {activity.tax_type} -{" "}
+                                                {activity.spt_number}
+                                            </h3>
+                                            <p className="text-sm text-gray-500">
+                                                {activity.description ||
+                                                    `${activity.period} ${activity.year}`}
+                                            </p>
+                                            <p className="text-xs text-gray-400">
+                                                {formatDate(
+                                                    activity.created_at
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center space-x-3">
+                                        <span
+                                            className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                                activity.status
+                                            )}`}
+                                        >
+                                            {getStatusText(activity.status)}
+                                        </span>
+                                        <span className="text-sm font-medium text-gray-900">
+                                            {new Intl.NumberFormat("id-ID", {
+                                                style: "currency",
+                                                currency: "IDR",
+                                                minimumFractionDigits: 0,
+                                                maximumFractionDigits: 0,
+                                            }).format(activity.amount)}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-8">
+                            <svg
+                                className="w-16 h-16 text-gray-300 mx-auto mb-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                />
+                            </svg>
+                            <p className="text-gray-500">
+                                Belum ada aktivitas terbaru
+                            </p>
+                            <p className="text-sm text-gray-400">
+                                Mulai dengan menambahkan data pajak pertama Anda
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         </Layout>

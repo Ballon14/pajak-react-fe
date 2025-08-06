@@ -2,88 +2,67 @@ import api from "../config/api"
 
 export const taxRecordService = {
     // Get all tax records
-    async getAll() {
+    getAll: async () => {
         try {
             const response = await api.get("/tax-records")
             return response.data
         } catch (error) {
-            console.error("TaxRecordService getAll error:", error)
-            throw error
-        }
-    },
-
-    // Get single tax record
-    async getById(id) {
-        try {
-            const response = await api.get(`/tax-records/${id}`)
-            return response.data
-        } catch (error) {
-            console.error("TaxRecordService getById error:", error)
-            throw error
-        }
-    },
-
-    // Create new tax record
-    async create(data) {
-        try {
-            const response = await api.post("/tax-records", data)
-            return response.data
-        } catch (error) {
-            console.error("TaxRecordService create error:", error)
-            throw error
-        }
-    },
-
-    // Update tax record
-    async update(id, data) {
-        try {
-            const response = await api.put(`/tax-records/${id}`, data)
-            return response.data
-        } catch (error) {
-            console.error("TaxRecordService update error:", error)
-            throw error
-        }
-    },
-
-    // Delete tax record
-    async delete(id) {
-        try {
-            const response = await api.delete(`/tax-records/${id}`)
-            return response.data
-        } catch (error) {
-            console.error("TaxRecordService delete error:", error)
+            console.error("Error getting tax records:", error)
             throw error
         }
     },
 
     // Get statistics
-    async getStatistics() {
+    getStatistics: async () => {
         try {
-            console.log("🌐 Making API request to /tax-records/statistics")
-            const token = localStorage.getItem("token")
-            console.log("🔑 Token exists:", !!token)
-
             const response = await api.get("/tax-records/statistics")
-            console.log("📡 Raw API response:", {
-                status: response.status,
-                statusText: response.statusText,
-                headers: response.headers,
-                data: response.data,
-            })
             return response.data
         } catch (error) {
-            console.error("❌ Statistics API Error:", {
-                name: error.name,
-                message: error.message,
-                status: error.response?.status,
-                statusText: error.response?.statusText,
-                responseData: error.response?.data,
-                config: {
-                    url: error.config?.url,
-                    method: error.config?.method,
-                    headers: error.config?.headers,
-                },
-            })
+            console.error("Error getting statistics:", error)
+            throw error
+        }
+    },
+
+    // Get single tax record
+    getById: async (id) => {
+        try {
+            const response = await api.get(`/tax-records/${id}`)
+            return response.data
+        } catch (error) {
+            console.error("Error getting tax record:", error)
+            throw error
+        }
+    },
+
+    // Create new tax record
+    create: async (data) => {
+        try {
+            const response = await api.post("/tax-records", data)
+            return response.data
+        } catch (error) {
+            console.error("Error creating tax record:", error)
+            throw error
+        }
+    },
+
+    // Update tax record
+    update: async (id, data) => {
+        try {
+            const response = await api.put(`/tax-records/${id}`, data)
+            return response.data
+        } catch (error) {
+            console.error("Error updating tax record:", error)
+            throw error
+        }
+    },
+
+    // Delete tax record
+    delete: async (id) => {
+        try {
+            const response = await api.delete(`/tax-records/${id}`)
+            return response.data
+        } catch (error) {
+            console.error("Error deleting tax record:", error)
             throw error
         }
     },

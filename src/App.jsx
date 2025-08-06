@@ -10,6 +10,8 @@ import Dashboard from "./components/Dashboard"
 import AdminDashboard from "./components/AdminDashboard"
 import TaxRecords from "./components/TaxRecords"
 import AddTaxRecord from "./components/AddTaxRecord"
+import EditTaxRecord from "./components/EditTaxRecord"
+import DetailTaxRecord from "./components/DetailTaxRecord"
 import Reports from "./components/Reports"
 import { authService } from "./services/authService"
 
@@ -57,6 +59,22 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <AddTaxRecord />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/tax-records/:id"
+                        element={
+                            <ProtectedRoute>
+                                <DetailTaxRecord />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/tax-records/:id/edit"
+                        element={
+                            <ProtectedRoute>
+                                <EditTaxRecord />
                             </ProtectedRoute>
                         }
                     />

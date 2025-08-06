@@ -1,107 +1,73 @@
 import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useForm } from "react-hook-form"
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup"
 import Layout from "./Layout"
+import Toast from "./Toast"
 import { taxRecordService } from "../services/taxRecordService"
 
+const schema = yup
+    .object({
+        tax_type: yup.string().required("Jenis pajak wajib diisi"),
+        spt_number: yup.string().required("Nomor SPT wajib diisi"),
+        period: yup.string().required("Periode wajib diisi"),
+        year: yup.number().required("Tahun wajib diisi"),
+        amount: yup.number().required("Jumlah wajib diisi"),
+        description: yup.string(),
+        status: yup.string().required("Status wajib diisi"),
+        due_date: yup.date(),
+        payment_date: yup.date(),
+        notes: yup.string(),
+    })
+    .required()
+
 const AddTaxRecord = () => {
-    const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
-    const [formData, setFormData] = useState({
-        taxType: "",
-        sptNumber: "",
-        period: "",
-        year: new Date().getFullYear(),
-        amount: "",
-        description: "",
-        status: "belum_lunas",
-        dueDate: "",
-        paymentDate: "",
-        notes: "",
+    const [toast, setToast] = useState(null)
+    const navigate = useNavigate()
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        reset,
+    } = useForm({
+        resolver: yupResolver(schema),
     })
 
-    const [errors, setErrors] = useState({})
-
-    const handleChange = (e) => {
-        const { name, value } = e.target
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }))
-
-        // Clear error when user starts typing
-        if (errors[name]) {
-            setErrors((prev) => ({
-                ...prev,
-                [name]: "",
-            }))
-        }
+    const showToast = (message, type = "info") => {
+        setToast({ message, type })
     }
 
-    const validateForm = () => {
-        const newErrors = {}
-
-        if (!formData.taxType) {
-            newErrors.taxType = "Jenis pajak harus dipilih"
-        }
-
-        if (!formData.sptNumber) {
-            newErrors.sptNumber = "Nomor SPT harus diisi"
-        }
-
-        if (!formData.period) {
-            newErrors.period = "Periode harus diisi"
-        }
-
-        if (!formData.amount) {
-            newErrors.amount = "Jumlah pajak harus diisi"
-        } else if (isNaN(formData.amount) || parseFloat(formData.amount) <= 0) {
-            newErrors.amount = "Jumlah pajak harus berupa angka positif"
-        }
-
-        if (!formData.dueDate) {
-            newErrors.dueDate = "Tanggal jatuh tempo harus diisi"
-        }
-
-        setErrors(newErrors)
-        return Object.keys(newErrors).length === 0
-    }
-
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-
-        if (!validateForm()) {
-            return
-        }
-
+    const onSubmit = async (data) => {
         setLoading(true)
 
         try {
-            // Prepare data for API
-            const taxData = {
-                tax_type: formData.taxType,
-                spt_number: formData.sptNumber,
-                period: formData.period,
-                year: formData.year,
-                amount: parseFloat(formData.amount),
-                description: formData.description,
-                status: formData.status,
-                due_date: formData.dueDate,
-                payment_date: formData.paymentDate || null,
-                notes: formData.notes,
+            const response = await taxRecordService.create(data)
+            console.log("Create response:", response)
+
+            if (response.success) {
+                showToast("Data PBB berhasil ditambahkan!", "success")
+                reset()
+                setTimeout(() => {
+                    navigate("/tax-records")
+                }, 1500)
+            } else {
+                showToast(
+                    response.message || "Gagal menambahkan data PBB",
+                    "error"
+                )
             }
-
-            // Call API
-            await taxRecordService.create(taxData)
-
-            // Success
-            alert("Data PBB berhasil ditambahkan!")
-            navigate("/tax-records")
         } catch (error) {
             console.error("Error creating tax record:", error)
             if (error.response?.data?.message) {
-                alert(`Error: ${error.response.data.message}`)
+                showToast(`Error: ${error.response.data.message}`, "error")
             } else {
-                alert("Terjadi kesalahan saat menambahkan data PBB")
+                showToast(
+                    "Terjadi kesalahan saat menambahkan data PBB",
+                    "error"
+                )
             }
         } finally {
             setLoading(false)
@@ -136,7 +102,10 @@ const AddTaxRecord = () => {
 
                 {/* Form */}
                 <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form
+                        onSubmit={handleSubmit(onSubmit)}
+                        className="space-y-6"
+                    >
                         {/* Basic Information */}
                         <div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -149,11 +118,9 @@ const AddTaxRecord = () => {
                                         <span className="text-red-500">*</span>
                                     </label>
                                     <select
-                                        name="taxType"
-                                        value={formData.taxType}
-                                        onChange={handleChange}
+                                        {...register("tax_type")}
                                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                            errors.taxType
+                                            errors.tax_type
                                                 ? "border-red-500"
                                                 : "border-gray-300"
                                         }`}
@@ -172,9 +139,9 @@ const AddTaxRecord = () => {
                                         <option value="toko">Toko/Ruko</option>
                                         <option value="pabrik">Pabrik</option>
                                     </select>
-                                    {errors.taxType && (
+                                    {errors.tax_type && (
                                         <p className="mt-1 text-sm text-red-600">
-                                            {errors.taxType}
+                                            {errors.tax_type.message}
                                         </p>
                                     )}
                                 </div>
@@ -185,20 +152,18 @@ const AddTaxRecord = () => {
                                         <span className="text-red-500">*</span>
                                     </label>
                                     <input
+                                        {...register("spt_number")}
                                         type="text"
-                                        name="sptNumber"
-                                        value={formData.sptNumber}
-                                        onChange={handleChange}
                                         placeholder="Contoh: SPPT-2024-001"
                                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                            errors.sptNumber
+                                            errors.spt_number
                                                 ? "border-red-500"
                                                 : "border-gray-300"
                                         }`}
                                     />
-                                    {errors.sptNumber && (
+                                    {errors.spt_number && (
                                         <p className="mt-1 text-sm text-red-600">
-                                            {errors.sptNumber}
+                                            {errors.spt_number.message}
                                         </p>
                                     )}
                                 </div>
@@ -209,9 +174,7 @@ const AddTaxRecord = () => {
                                         <span className="text-red-500">*</span>
                                     </label>
                                     <select
-                                        name="period"
-                                        value={formData.period}
-                                        onChange={handleChange}
+                                        {...register("period")}
                                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                             errors.period
                                                 ? "border-red-500"
@@ -242,7 +205,7 @@ const AddTaxRecord = () => {
                                     </select>
                                     {errors.period && (
                                         <p className="mt-1 text-sm text-red-600">
-                                            {errors.period}
+                                            {errors.period.message}
                                         </p>
                                     )}
                                 </div>
@@ -252,9 +215,7 @@ const AddTaxRecord = () => {
                                         Tahun
                                     </label>
                                     <select
-                                        name="year"
-                                        value={formData.year}
-                                        onChange={handleChange}
+                                        {...register("year")}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
                                         {Array.from(
@@ -267,6 +228,11 @@ const AddTaxRecord = () => {
                                             </option>
                                         ))}
                                     </select>
+                                    {errors.year && (
+                                        <p className="mt-1 text-sm text-red-600">
+                                            {errors.year.message}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -283,10 +249,8 @@ const AddTaxRecord = () => {
                                         <span className="text-red-500">*</span>
                                     </label>
                                     <input
+                                        {...register("amount")}
                                         type="text"
-                                        name="amount"
-                                        value={formData.amount}
-                                        onChange={handleChange}
                                         placeholder="0"
                                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                             errors.amount
@@ -296,7 +260,7 @@ const AddTaxRecord = () => {
                                     />
                                     {errors.amount && (
                                         <p className="mt-1 text-sm text-red-600">
-                                            {errors.amount}
+                                            {errors.amount.message}
                                         </p>
                                     )}
                                 </div>
@@ -306,9 +270,7 @@ const AddTaxRecord = () => {
                                         Status Pembayaran
                                     </label>
                                     <select
-                                        name="status"
-                                        value={formData.status}
-                                        onChange={handleChange}
+                                        {...register("status")}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
                                         <option value="belum_lunas">
@@ -317,6 +279,11 @@ const AddTaxRecord = () => {
                                         <option value="proses">Proses</option>
                                         <option value="lunas">Lunas</option>
                                     </select>
+                                    {errors.status && (
+                                        <p className="mt-1 text-sm text-red-600">
+                                            {errors.status.message}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -333,19 +300,17 @@ const AddTaxRecord = () => {
                                         <span className="text-red-500">*</span>
                                     </label>
                                     <input
+                                        {...register("due_date")}
                                         type="date"
-                                        name="dueDate"
-                                        value={formData.dueDate}
-                                        onChange={handleChange}
                                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                            errors.dueDate
+                                            errors.due_date
                                                 ? "border-red-500"
                                                 : "border-gray-300"
                                         }`}
                                     />
-                                    {errors.dueDate && (
+                                    {errors.due_date && (
                                         <p className="mt-1 text-sm text-red-600">
-                                            {errors.dueDate}
+                                            {errors.due_date.message}
                                         </p>
                                     )}
                                 </div>
@@ -355,10 +320,8 @@ const AddTaxRecord = () => {
                                         Tanggal Pembayaran
                                     </label>
                                     <input
+                                        {...register("payment_date")}
                                         type="date"
-                                        name="paymentDate"
-                                        value={formData.paymentDate}
-                                        onChange={handleChange}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
                                 </div>
@@ -376,10 +339,8 @@ const AddTaxRecord = () => {
                                         Deskripsi
                                     </label>
                                     <input
+                                        {...register("description")}
                                         type="text"
-                                        name="description"
-                                        value={formData.description}
-                                        onChange={handleChange}
                                         placeholder="Deskripsi singkat tentang pajak ini"
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
@@ -390,9 +351,7 @@ const AddTaxRecord = () => {
                                         Catatan
                                     </label>
                                     <textarea
-                                        name="notes"
-                                        value={formData.notes}
-                                        onChange={handleChange}
+                                        {...register("notes")}
                                         rows={4}
                                         placeholder="Catatan tambahan (opsional)"
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
@@ -428,6 +387,13 @@ const AddTaxRecord = () => {
                     </form>
                 </div>
             </div>
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
         </Layout>
     )
 }

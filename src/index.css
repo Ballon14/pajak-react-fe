@@ -2,6 +2,293 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Print Styles */
+@media print {
+    /* Hide elements that shouldn't be printed */
+    .print\\:hidden {
+        display: none !important;
+    }
+
+    /* Show elements that should only appear when printing */
+    .print\\:block {
+        display: block !important;
+    }
+
+    /* Remove shadows and borders for cleaner print */
+    .print\\:shadow-none {
+        box-shadow: none !important;
+    }
+
+    .print\\:border-none {
+        border: none !important;
+    }
+
+    .print\\:border {
+        border: 1px solid #d1d5db !important;
+    }
+
+    .print\\:border-gray-300 {
+        border-color: #d1d5db !important;
+    }
+
+    /* Adjust padding for print */
+    .print\\:p-0 {
+        padding: 0 !important;
+    }
+
+    .print\\:pt-8 {
+        padding-top: 2rem !important;
+    }
+
+    .print\\:mt-8 {
+        margin-top: 2rem !important;
+    }
+
+    .print\\:mt-12 {
+        margin-top: 3rem !important;
+    }
+
+    .print\\:mb-8 {
+        margin-bottom: 2rem !important;
+    }
+
+    /* Adjust text sizes for print */
+    .print\\:text-base {
+        font-size: 1rem !important;
+    }
+
+    .print\\:text-xl {
+        font-size: 1.25rem !important;
+    }
+
+    .print\\:text-3xl {
+        font-size: 1.875rem !important;
+    }
+
+    /* Background colors for print */
+    .print\\:bg-white {
+        background-color: white !important;
+    }
+
+    .print\\:text-black {
+        color: black !important;
+    }
+
+    /* Ensure proper page breaks */
+    .print\\:break-inside-avoid {
+        break-inside: avoid !important;
+    }
+
+    /* Set page margins for A4 optimization */
+    @page {
+        margin: 0.15in;
+        size: A4;
+    }
+
+    /* Ensure background colors print */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+
+    /* Optimize layout for A4 */
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 6pt !important;
+        line-height: 1 !important;
+    }
+
+    /* Container optimization */
+    .max-w-4xl {
+        max-width: none !important;
+        width: 100% !important;
+    }
+
+    /* Grid optimization for print */
+    .grid {
+        display: grid !important;
+    }
+
+    .grid-cols-1 {
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+    }
+
+    .grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .lg\\:grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    /* Table optimization */
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 4pt !important;
+    }
+
+    th,
+    td {
+        padding: 1px !important;
+        border: 1px solid #d1d5db !important;
+        text-align: left !important;
+    }
+
+    th {
+        background-color: #f9fafb !important;
+        font-weight: bold !important;
+    }
+
+    /* Header optimization */
+    .print\\:text-3xl {
+        font-size: 10pt !important;
+        font-weight: bold !important;
+        margin-bottom: 2pt !important;
+    }
+
+    .print\\:text-4xl {
+        font-size: 12pt !important;
+        font-weight: bold !important;
+        margin-bottom: 2pt !important;
+    }
+
+    .print\\:text-2xl {
+        font-size: 8pt !important;
+        font-weight: bold !important;
+        margin-bottom: 2pt !important;
+    }
+
+    .print\\:text-xl {
+        font-size: 7pt !important;
+        font-weight: bold !important;
+    }
+
+    .print\\:text-lg {
+        font-size: 6pt !important;
+    }
+
+    .print\\:text-sm {
+        font-size: 4pt !important;
+    }
+
+    /* Spacing optimization for single page */
+    .space-y-4 > * + * {
+        margin-top: 2pt !important;
+    }
+
+    .space-y-6 > * + * {
+        margin-top: 3pt !important;
+    }
+
+    .space-y-8 > * + * {
+        margin-top: 4pt !important;
+    }
+
+    /* Currency formatting */
+    .print\\:text-4xl {
+        font-size: 9pt !important;
+        font-weight: bold !important;
+        color: #1e40af !important;
+    }
+
+    /* Status badge optimization */
+    .print\\:border-2 {
+        border: 1px solid #fbbf24 !important;
+        padding: 1px 2px !important;
+        border-radius: 1px !important;
+        background-color: #fef3c7 !important;
+        color: #92400e !important;
+        font-weight: 600 !important;
+    }
+
+    /* Text color optimization */
+    .print\\:text-gray-800 {
+        color: #1f2937 !important;
+    }
+
+    .print\\:text-blue-800 {
+        color: #1e40af !important;
+    }
+
+    .print\\:text-yellow-800 {
+        color: #92400e !important;
+    }
+
+    /* Background optimization */
+    .print\\:bg-gray-100 {
+        background-color: #f3f4f6 !important;
+    }
+
+    /* Font weight optimization */
+    .print\\:font-semibold {
+        font-weight: 600 !important;
+    }
+
+    .print\\:font-bold {
+        font-weight: 700 !important;
+    }
+
+    .print\\:font-medium {
+        font-weight: 500 !important;
+    }
+
+    /* Margin optimization for single page */
+    .print\\:mb-3 {
+        margin-bottom: 1pt !important;
+    }
+
+    .print\\:mb-6 {
+        margin-bottom: 2pt !important;
+    }
+
+    .print\\:mb-8 {
+        margin-bottom: 3pt !important;
+    }
+
+    /* Gap optimization for single page */
+    .print\\:gap-16 {
+        gap: 6pt !important;
+    }
+
+    /* Footer optimization */
+    .print\\:mt-12 {
+        margin-top: 4pt !important;
+    }
+
+    .print\\:mt-16 {
+        margin-top: 6pt !important;
+    }
+
+    .print\\:pt-8 {
+        padding-top: 3pt !important;
+    }
+
+    .print\\:pt-12 {
+        padding-top: 4pt !important;
+    }
+
+    /* Ensure no page breaks */
+    .print\\:break-inside-avoid {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    /* Compact layout */
+    .print\\:p-0 {
+        padding: 0 !important;
+    }
+
+    .print\\:p-2 {
+        padding: 2pt !important;
+    }
+
+    .print\\:p-4 {
+        padding: 4pt !important;
+    }
+}
+
 :root {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
@@ -12,9 +299,9 @@
 }
 
 body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
 }
 
 /* Custom Animations */

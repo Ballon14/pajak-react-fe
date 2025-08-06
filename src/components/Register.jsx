@@ -28,12 +28,14 @@ const Register = () => {
     const [error, setError] = useState("")
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+    const [showSuccessPopup, setShowSuccessPopup] = useState(false)
     const navigate = useNavigate()
 
     const {
         register,
         handleSubmit,
         formState: { errors },
+        watch,
     } = useForm({
         resolver: yupResolver(schema),
     })
@@ -49,9 +51,14 @@ const Register = () => {
             if (response.success) {
                 authService.setToken(response.data.token)
                 authService.setUser(response.data.user)
-                // Show success message before redirect
-                alert("Registrasi berhasil! Anda akan dialihkan ke dashboard.")
-                navigate("/dashboard")
+
+                // Show success popup instead of alert
+                setShowSuccessPopup(true)
+
+                // Redirect after a short delay
+                setTimeout(() => {
+                    navigate("/dashboard")
+                }, 2000) // 2 seconds delay
             } else {
                 setError(response.message || "Registrasi gagal")
             }
@@ -76,6 +83,38 @@ const Register = () => {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4">
+            {/* Success Popup */}
+            {showSuccessPopup && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm mx-4 text-center">
+                        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg
+                                className="w-8 h-8 text-green-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 13l4 4L19 7"
+                                />
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            Registrasi Berhasil!
+                        </h3>
+                        <p className="text-gray-600 mb-4">
+                            Mohon tunggu sebentar...
+                        </p>
+                        <div className="flex justify-center">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="max-w-md w-full">
                 {/* Logo/Header */}
                 <div className="text-center mb-8">
