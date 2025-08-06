@@ -66,4 +66,28 @@ export const taxRecordService = {
             throw error
         }
     },
+
+    // Check and auto-create tax records for new year
+    checkAndCreateForNewYear: async () => {
+        const response = await api.get("/tax-records/check-year")
+        return response.data
+    },
+
+    // Manually create tax records for specific year
+    createForYear: async (year) => {
+        const response = await api.post("/tax-records/auto-create", { year })
+        return response.data
+    },
+
+    // Get outstanding tax records (tunggakan)
+    getOutstanding: async () => {
+        const response = await api.get("/tax-records/outstanding")
+        return response.data
+    },
+
+    // Get tax records by year
+    getByYear: async (year) => {
+        const response = await api.get(`/tax-records/year/${year}`)
+        return response.data
+    },
 }

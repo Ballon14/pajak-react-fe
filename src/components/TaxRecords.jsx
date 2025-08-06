@@ -14,6 +14,7 @@ const TaxRecords = () => {
         status: "",
         property_type: "",
         year: "",
+        showOutstanding: false,
     })
 
     useEffect(() => {
@@ -27,7 +28,14 @@ const TaxRecords = () => {
     const loadTaxRecords = async () => {
         try {
             setLoading(true)
-            const response = await taxRecordService.getAll()
+
+            let response
+            if (filters.showOutstanding) {
+                response = await taxRecordService.getOutstanding()
+            } else {
+                response = await taxRecordService.getAll()
+            }
+
             if (response.success) {
                 setRecords(response.data || [])
             } else {
@@ -90,6 +98,41 @@ const TaxRecords = () => {
         window.print()
     }
 
+    const handleCreateNewYear = async () => {
+        if (
+            window.confirm(
+                "Apakah Anda yakin ingin membuat data PBB untuk tahun baru? Data akan dibuat berdasarkan data tahun sebelumnya dengan kenaikan 10%."
+            )
+        ) {
+            try {
+                setLoading(true)
+                const currentYear = new Date().getFullYear()
+                const response = await taxRecordService.createForYear(
+                    currentYear
+                )
+
+                if (response.success) {
+                    let message = `Berhasil membuat ${response.count} data PBB untuk tahun ${currentYear}`
+                    if (response.outstandingCount > 0) {
+                        message += ` (${response.outstandingCount} tunggakan, ${response.newYearCount} data baru)`
+                    }
+                    showToast(message, "success")
+                    loadTaxRecords() // Reload data
+                } else {
+                    showToast(
+                        response.message || "Gagal membuat data tahun baru",
+                        "error"
+                    )
+                }
+            } catch (error) {
+                console.error("Error creating new year data:", error)
+                showToast("Gagal membuat data tahun baru", "error")
+            } finally {
+                setLoading(false)
+            }
+        }
+    }
+
     if (loading) {
         return (
             <Layout>
@@ -131,14 +174,14 @@ const TaxRecords = () => {
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     strokeWidth={2}
-                                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                                    d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
                                 />
                             </svg>
                             <span>Print List</span>
                         </button>
                         <button
-                            onClick={() => navigate("/tax-records/create")}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 print:hidden"
+                            onClick={handleCreateNewYear}
+                            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 print:hidden"
                         >
                             <svg
                                 className="w-5 h-5"
@@ -150,11 +193,30 @@ const TaxRecords = () => {
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
                                     strokeWidth={2}
-                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                                 />
                             </svg>
-                            <span>Tambah Data</span>
+                            <span>Buat Data Tahun Baru</span>
                         </button>
+                    <button
+                        onClick={() => navigate("/tax-records/create")}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 print:hidden"
+                    >
+                        <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                            />
+                        </svg>
+                        <span>Tambah Data</span>
+                    </button>
                     </div>
                 </div>
 
@@ -176,7 +238,7 @@ const TaxRecords = () => {
 
                 {/* Filter and Search */}
                 <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 print:hidden">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Filter Status
@@ -244,6 +306,31 @@ const TaxRecords = () => {
                                 <option value="2022">2022</option>
                             </select>
                         </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Tampilkan
+                            </label>
+                            <select
+                                value={
+                                    filters.showOutstanding
+                                        ? "outstanding"
+                                        : "all"
+                                }
+                                onChange={(e) =>
+                                    setFilters({
+                                        ...filters,
+                                        showOutstanding:
+                                            e.target.value === "outstanding",
+                                    })
+                                }
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                                <option value="all">Semua Data</option>
+                                <option value="outstanding">
+                                    Tunggakan Saja
+                                </option>
+                            </select>
+                        </div>
                         <div className="flex items-end">
                             <button
                                 onClick={handleFilter}
@@ -262,72 +349,78 @@ const TaxRecords = () => {
                             <thead className="bg-gray-50 print:bg-gray-100">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
-                                        Jenis Pajak
+                                        Nama
                                     </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                        Alamat
+                                        </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                        Jenis Pajak
+                                        </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Nomor SPT
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
-                                        Periode
-                                    </th>
+                                        </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Tahun
-                                    </th>
+                                        </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
-                                        Jumlah
-                                    </th>
+                                            Jumlah
+                                        </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
-                                        Status
-                                    </th>
+                                            Status
+                                        </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:hidden">
-                                        Aksi
-                                    </th>
-                                </tr>
-                            </thead>
+                                            Aksi
+                                        </th>
+                                    </tr>
+                                </thead>
                             <tbody className="bg-white divide-y divide-gray-200 print:divide-gray-300">
-                                {records.map((record, index) => (
+                                    {records.map((record, index) => (
                                     <tr
                                         key={record._id}
                                         className="hover:bg-gray-50 print:hover:bg-white"
                                     >
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 print:text-base print:px-4 print:py-2">
-                                            {record.tax_type}
+                                            {record.name || "-"}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:text-base print:px-4 print:py-2">
-                                            {record.spt_number}
-                                        </td>
+                                            {record.address || "-"}
+                                            </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 print:text-base print:px-4 print:py-2">
+                                                {record.tax_type}
+                                            </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:text-base print:px-4 print:py-2">
-                                            {record.period}
-                                        </td>
+                                                {record.spt_number}
+                                            </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:text-base print:px-4 print:py-2">
                                             {record.year}
-                                        </td>
+                                            </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:text-base print:px-4 print:py-2">
                                             {new Intl.NumberFormat("id-ID", {
-                                                style: "currency",
-                                                currency: "IDR",
-                                                minimumFractionDigits: 0,
-                                                maximumFractionDigits: 0,
+                                                        style: "currency",
+                                                        currency: "IDR",
+                                                        minimumFractionDigits: 0,
+                                                        maximumFractionDigits: 0,
                                             }).format(record.amount)}
-                                        </td>
+                                            </td>
                                         <td className="px-6 py-4 whitespace-nowrap print:px-4 print:py-2">
-                                            <span
+                                                <span
                                                 className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                                     record.status === "lunas"
-                                                        ? "bg-green-100 text-green-800"
-                                                        : record.status ===
-                                                          "proses"
-                                                        ? "bg-yellow-100 text-yellow-800"
-                                                        : "bg-red-100 text-red-800"
+                                                            ? "bg-green-100 text-green-800"
+                                                            : record.status ===
+                                                              "proses"
+                                                            ? "bg-yellow-100 text-yellow-800"
+                                                            : "bg-red-100 text-red-800"
                                                 } print:border print:border-gray-300 print:bg-white print:text-black print:text-sm print:px-3 print:py-1`}
-                                            >
-                                                {record.status === "lunas"
-                                                    ? "Lunas"
+                                                >
+                                                    {record.status === "lunas"
+                                                        ? "Lunas"
                                                     : record.status === "proses"
-                                                    ? "Proses"
-                                                    : "Belum Lunas"}
-                                            </span>
-                                        </td>
+                                                        ? "Proses"
+                                                        : "Belum Lunas"}
+                                                </span>
+                                            </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium print:hidden">
                                             <div className="flex items-center space-x-2">
                                                 {/* View/Detail Button */}
@@ -405,12 +498,12 @@ const TaxRecords = () => {
                                                     </svg>
                                                 </button>
                                             </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                 </div>
             </div>
             {toast && (

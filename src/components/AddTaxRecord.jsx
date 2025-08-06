@@ -9,9 +9,10 @@ import { taxRecordService } from "../services/taxRecordService"
 
 const schema = yup
     .object({
+        name: yup.string().required("Nama wajib diisi"),
+        address: yup.string().required("Alamat wajib diisi"),
         tax_type: yup.string().required("Jenis pajak wajib diisi"),
         spt_number: yup.string().required("Nomor SPT wajib diisi"),
-        period: yup.string().required("Periode wajib diisi"),
         year: yup.number().required("Tahun wajib diisi"),
         amount: yup.number().required("Jumlah wajib diisi"),
         description: yup.string(),
@@ -44,7 +45,14 @@ const AddTaxRecord = () => {
         setLoading(true)
 
         try {
-            const response = await taxRecordService.create(data)
+            // Ensure tax_type is PBB and year is 2025
+            const submitData = {
+                ...data,
+                tax_type: "PBB",
+                year: 2025,
+            }
+
+            const response = await taxRecordService.create(submitData)
             console.log("Create response:", response)
 
             if (response.success) {
@@ -114,36 +122,63 @@ const AddTaxRecord = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Jenis Properti{" "}
+                                        Nama{" "}
                                         <span className="text-red-500">*</span>
                                     </label>
-                                    <select
-                                        {...register("tax_type")}
+                                    <input
+                                        {...register("name")}
+                                        type="text"
+                                        placeholder="Masukkan nama lengkap"
                                         className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                            errors.tax_type
+                                            errors.name
                                                 ? "border-red-500"
                                                 : "border-gray-300"
                                         }`}
-                                    >
-                                        <option value="">
-                                            Pilih Jenis Properti
-                                        </option>
-                                        <option value="rumah_tinggal">
-                                            Rumah Tinggal
-                                        </option>
-                                        <option value="kantor">Kantor</option>
-                                        <option value="gudang">Gudang</option>
-                                        <option value="lahan_kosong">
-                                            Lahan Kosong
-                                        </option>
-                                        <option value="toko">Toko/Ruko</option>
-                                        <option value="pabrik">Pabrik</option>
-                                    </select>
-                                    {errors.tax_type && (
+                                    />
+                                    {errors.name && (
                                         <p className="mt-1 text-sm text-red-600">
-                                            {errors.tax_type.message}
+                                            {errors.name.message}
                                         </p>
                                     )}
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Alamat{" "}
+                                        <span className="text-red-500">*</span>
+                                    </label>
+                                    <textarea
+                                        {...register("address")}
+                                        placeholder="Masukkan alamat lengkap"
+                                        rows="3"
+                                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                                            errors.address
+                                                ? "border-red-500"
+                                                : "border-gray-300"
+                                        }`}
+                                    />
+                                    {errors.address && (
+                                        <p className="mt-1 text-sm text-red-600">
+                                            {errors.address.message}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Jenis Pajak{" "}
+                                        <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        {...register("tax_type")}
+                                        type="text"
+                                        value="PBB"
+                                        readOnly
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                                    />
+                                    <p className="mt-1 text-sm text-gray-500">
+                                        Pajak Bumi dan Bangunan
+                                    </p>
                                 </div>
 
                                 <div>
@@ -170,69 +205,18 @@ const AddTaxRecord = () => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Periode{" "}
-                                        <span className="text-red-500">*</span>
-                                    </label>
-                                    <select
-                                        {...register("period")}
-                                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                                            errors.period
-                                                ? "border-red-500"
-                                                : "border-gray-300"
-                                        }`}
-                                    >
-                                        <option value="">Pilih Periode</option>
-                                        <option value="januari">Januari</option>
-                                        <option value="februari">
-                                            Februari
-                                        </option>
-                                        <option value="maret">Maret</option>
-                                        <option value="april">April</option>
-                                        <option value="mei">Mei</option>
-                                        <option value="juni">Juni</option>
-                                        <option value="juli">Juli</option>
-                                        <option value="agustus">Agustus</option>
-                                        <option value="september">
-                                            September
-                                        </option>
-                                        <option value="oktober">Oktober</option>
-                                        <option value="november">
-                                            November
-                                        </option>
-                                        <option value="desember">
-                                            Desember
-                                        </option>
-                                    </select>
-                                    {errors.period && (
-                                        <p className="mt-1 text-sm text-red-600">
-                                            {errors.period.message}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Tahun
                                     </label>
-                                    <select
+                                    <input
                                         {...register("year")}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    >
-                                        {Array.from(
-                                            { length: 10 },
-                                            (_, i) =>
-                                                new Date().getFullYear() - i
-                                        ).map((year) => (
-                                            <option key={year} value={year}>
-                                                {year}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    {errors.year && (
-                                        <p className="mt-1 text-sm text-red-600">
-                                            {errors.year.message}
-                                        </p>
-                                    )}
+                                        type="text"
+                                        value="2025"
+                                        readOnly
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                                    />
+                                    <p className="mt-1 text-sm text-gray-500">
+                                        Tahun Pajak 2025
+                                    </p>
                                 </div>
                             </div>
                         </div>

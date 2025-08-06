@@ -288,6 +288,22 @@ const DetailTaxRecord = () => {
                                 <div className="space-y-6 print:space-y-2">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
+                                            Nama
+                                        </label>
+                                        <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
+                                            {record.name || "-"}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
+                                            Alamat
+                                        </label>
+                                        <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
+                                            {record.address || "-"}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
                                             Jenis Pajak
                                         </label>
                                         <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
@@ -302,23 +318,13 @@ const DetailTaxRecord = () => {
                                             {record.spt_number || "-"}
                                         </p>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4 print:gap-3">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
-                                                Periode
-                                            </label>
-                                            <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
-                                                {record.period || "-"}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
-                                                Tahun
-                                            </label>
-                                            <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
-                                                {record.year || "-"}
-                                            </p>
-                                        </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
+                                            Tahun
+                                        </label>
+                                        <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
+                                            {record.year || "-"}
+                                        </p>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
@@ -451,3 +457,4 @@ const DetailTaxRecord = () => {
 }
 
 export default DetailTaxRecord
+ 

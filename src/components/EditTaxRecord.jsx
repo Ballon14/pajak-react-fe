@@ -12,9 +12,10 @@ const EditTaxRecord = () => {
     const [toast, setToast] = useState(null)
 
     const [formData, setFormData] = useState({
+        name: "",
+        address: "",
         tax_type: "",
         spt_number: "",
-        period: "",
         year: "",
         amount: "",
         description: "",
@@ -55,9 +56,10 @@ const EditTaxRecord = () => {
                 console.log("✅ Record data loaded:", recordData)
 
                 setFormData({
+                    name: recordData.name || "",
+                    address: recordData.address || "",
                     tax_type: recordData.tax_type || "",
                     spt_number: recordData.spt_number || "",
-                    period: recordData.period || "",
                     year: recordData.year ? recordData.year.toString() : "",
                     amount: recordData.amount
                         ? recordData.amount.toString()
@@ -116,6 +118,8 @@ const EditTaxRecord = () => {
 
             // Validate required fields
             if (
+                !formData.name ||
+                !formData.address ||
                 !formData.tax_type ||
                 !formData.spt_number ||
                 !formData.amount
@@ -138,8 +142,9 @@ const EditTaxRecord = () => {
 
             const updateData = {
                 ...formData,
+                tax_type: "PBB",
                 amount: amountValue,
-                year: formData.year ? parseInt(formData.year) : null,
+                year: 2025,
             }
 
             console.log("📤 Sending update data:", updateData)
@@ -252,33 +257,55 @@ const EditTaxRecord = () => {
                 <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Name */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Nama <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Masukkan nama lengkap"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+
+                            {/* Address */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Alamat{" "}
+                                    <span className="text-red-500">*</span>
+                                </label>
+                                <textarea
+                                    name="address"
+                                    value={formData.address}
+                                    onChange={handleInputChange}
+                                    required
+                                    placeholder="Masukkan alamat lengkap"
+                                    rows="3"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+
                             {/* Tax Type */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Jenis Pajak{" "}
                                     <span className="text-red-500">*</span>
                                 </label>
-                                <select
+                                <input
+                                    type="text"
                                     name="tax_type"
-                                    value={formData.tax_type}
-                                    onChange={handleInputChange}
-                                    required
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                >
-                                    <option value="">Pilih Jenis Pajak</option>
-                                    <option value="PBB">
-                                        PBB (Pajak Bumi dan Bangunan)
-                                    </option>
-                                    <option value="PPh">
-                                        PPh (Pajak Penghasilan)
-                                    </option>
-                                    <option value="PPnBM">
-                                        PPnBM (Pajak Penjualan Barang Mewah)
-                                    </option>
-                                    <option value="Pajak Daerah">
-                                        Pajak Daerah
-                                    </option>
-                                </select>
+                                    value="PBB"
+                                    readOnly
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                                />
+                                <p className="mt-1 text-sm text-gray-500">
+                                    Pajak Bumi dan Bangunan
+                                </p>
                             </div>
 
                             {/* SPT Number */}
@@ -298,48 +325,21 @@ const EditTaxRecord = () => {
                                 />
                             </div>
 
-                            {/* Period */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Periode
-                                </label>
-                                <select
-                                    name="period"
-                                    value={formData.period}
-                                    onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                >
-                                    <option value="">Pilih Periode</option>
-                                    <option value="Januari-Juni">
-                                        Januari-Juni
-                                    </option>
-                                    <option value="Juli-Desember">
-                                        Juli-Desember
-                                    </option>
-                                    <option value="Januari-Desember">
-                                        Januari-Desember
-                                    </option>
-                                </select>
-                            </div>
-
                             {/* Year */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Tahun
                                 </label>
-                                <select
+                                <input
+                                    type="text"
                                     name="year"
-                                    value={formData.year}
-                                    onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                >
-                                    <option value="">Pilih Tahun</option>
-                                    <option value="2024">2024</option>
-                                    <option value="2023">2023</option>
-                                    <option value="2022">2022</option>
-                                    <option value="2021">2021</option>
-                                    <option value="2020">2020</option>
-                                </select>
+                                    value="2025"
+                                    readOnly
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                                />
+                                <p className="mt-1 text-sm text-gray-500">
+                                    Tahun Pajak 2025
+                                </p>
                             </div>
 
                             {/* Amount */}
