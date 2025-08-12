@@ -13,7 +13,13 @@ import {
     DetailTaxRecord,
     Reports,
 } from "./pages"
-import { AdminDashboard, Users, AdminTaxRecords } from "./pages"
+import {
+    AdminDashboard,
+    Users,
+    AdminTaxRecords,
+    AdminTaxRecordDetail,
+    AdminTaxRecordEdit,
+} from "./pages"
 import { authService } from "./services/authService"
 
 // Protected Route Component
@@ -108,6 +114,22 @@ function App() {
                         element={
                             <ProtectedRoute requireAdmin={true}>
                                 <AdminTaxRecords />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/tax-records/:id"
+                        element={
+                            <ProtectedRoute requireAdmin={true}>
+                                <AdminTaxRecordDetail />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/tax-records/:id/edit"
+                        element={
+                            <ProtectedRoute requireAdmin={true}>
+                                <AdminTaxRecordEdit />
                             </ProtectedRoute>
                         }
                     />

@@ -56,6 +56,17 @@ export const taxRecordService = {
         }
     },
 
+    // Get single tax record for admin (no user restrictions)
+    getByIdAdmin: async (id) => {
+        try {
+            const response = await api.get(`/admin/tax-records/${id}`)
+            return response.data
+        } catch (error) {
+            console.error("Error getting admin tax record:", error)
+            throw error
+        }
+    },
+
     // Create new tax record
     create: async (data) => {
         try {
@@ -74,6 +85,17 @@ export const taxRecordService = {
             return response.data
         } catch (error) {
             console.error("Error updating tax record:", error)
+            throw error
+        }
+    },
+
+    // Update tax record for admin (no user restrictions)
+    updateAdmin: async (id, data) => {
+        try {
+            const response = await api.put(`/admin/tax-records/${id}`, data)
+            return response.data
+        } catch (error) {
+            console.error("Error updating admin tax record:", error)
             throw error
         }
     },

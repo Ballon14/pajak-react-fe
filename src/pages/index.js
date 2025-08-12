@@ -2,6 +2,8 @@
 export { default as Users } from "./admin/Users"
 export { default as AdminDashboard } from "./admin/AdminDashboard"
 export { default as AdminTaxRecords } from "./admin/AdminTaxRecords"
+export { default as AdminTaxRecordDetail } from "./admin/AdminTaxRecordDetail"
+export { default as AdminTaxRecordEdit } from "./admin/AdminTaxRecordEdit"
 export { default as Login } from "./auth/Login"
 export { default as Register } from "./auth/Register"
 export { default as Dashboard } from "./user/Dashboard"
