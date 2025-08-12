@@ -12,6 +12,17 @@ export const taxRecordService = {
         }
     },
 
+    // Get all tax records for admin (all users)
+    getTaxRecords: async () => {
+        try {
+            const response = await api.get("/admin/tax-records")
+            return response.data
+        } catch (error) {
+            console.error("Error getting admin tax records:", error)
+            throw error
+        }
+    },
+
     // Get statistics
     getStatistics: async () => {
         try {
@@ -19,6 +30,17 @@ export const taxRecordService = {
             return response.data
         } catch (error) {
             console.error("Error getting statistics:", error)
+            throw error
+        }
+    },
+
+    // Get admin statistics (all users)
+    getAdminStatistics: async () => {
+        try {
+            const response = await api.get("/admin/statistics")
+            return response.data
+        } catch (error) {
+            console.error("Error getting admin statistics:", error)
             throw error
         }
     },

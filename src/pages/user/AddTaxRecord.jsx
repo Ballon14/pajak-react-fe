@@ -3,9 +3,8 @@ import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
-import Layout from "./Layout"
-import Toast from "./Toast"
-import { taxRecordService } from "../services/taxRecordService"
+import { Layout, Toast } from "../../components/ui"
+import { taxRecordService } from "../../services/taxRecordService"
 
 const schema = yup
     .object({

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
-import { authService } from "../services/authService"
+import { authService } from "../../services/authService"
 
 const schema = yup
     .object({
@@ -35,7 +35,6 @@ const Register = () => {
         register,
         handleSubmit,
         formState: { errors },
-        watch,
     } = useForm({
         resolver: yupResolver(schema),
     })

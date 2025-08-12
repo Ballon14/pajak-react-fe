@@ -4,15 +4,16 @@ import {
     Route,
     Navigate,
 } from "react-router-dom"
-import Login from "./components/Login"
-import Register from "./components/Register"
-import Dashboard from "./components/Dashboard"
-import AdminDashboard from "./components/AdminDashboard"
-import TaxRecords from "./components/TaxRecords"
-import AddTaxRecord from "./components/AddTaxRecord"
-import EditTaxRecord from "./components/EditTaxRecord"
-import DetailTaxRecord from "./components/DetailTaxRecord"
-import Reports from "./components/Reports"
+import { Login, Register } from "./pages"
+import {
+    Dashboard,
+    TaxRecords,
+    AddTaxRecord,
+    EditTaxRecord,
+    DetailTaxRecord,
+    Reports,
+} from "./pages"
+import { AdminDashboard, Users, AdminTaxRecords } from "./pages"
 import { authService } from "./services/authService"
 
 // Protected Route Component
@@ -91,6 +92,22 @@ function App() {
                         element={
                             <ProtectedRoute requireAdmin={true}>
                                 <AdminDashboard />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/users"
+                        element={
+                            <ProtectedRoute requireAdmin={true}>
+                                <Users />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/tax-records"
+                        element={
+                            <ProtectedRoute requireAdmin={true}>
+                                <AdminTaxRecords />
                             </ProtectedRoute>
                         }
                     />

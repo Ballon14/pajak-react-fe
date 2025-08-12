@@ -1,0 +1,12 @@
+// Pages exports
+export { default as Users } from "./admin/Users"
+export { default as AdminDashboard } from "./admin/AdminDashboard"
+export { default as AdminTaxRecords } from "./admin/AdminTaxRecords"
+export { default as Login } from "./auth/Login"
+export { default as Register } from "./auth/Register"
+export { default as Dashboard } from "./user/Dashboard"
+export { default as TaxRecords } from "./user/TaxRecords"
+export { default as AddTaxRecord } from "./user/AddTaxRecord"
+export { default as EditTaxRecord } from "./user/EditTaxRecord"
+export { default as DetailTaxRecord } from "./user/DetailTaxRecord"
+export { default as Reports } from "./user/Reports"

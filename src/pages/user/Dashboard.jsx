@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import Layout from "./Layout"
-import { authService } from "../services/authService"
-import { taxRecordService } from "../services/taxRecordService"
+import { Layout } from "../../components/ui"
+import { authService } from "../../services/authService"
+import { taxRecordService } from "../../services/taxRecordService"
 
 const Dashboard = () => {
     const [user, setUser] = useState(null)

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import Layout from "./Layout"
-import Toast from "./Toast"
-import { taxRecordService } from "../services/taxRecordService"
+import { Layout, Toast } from "../../components/ui"
+import { taxRecordService } from "../../services/taxRecordService"
 
 const DetailTaxRecord = () => {
     const navigate = useNavigate()

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react"
-import Layout from "./Layout"
-import Toast from "./Toast"
-import { reportService } from "../services/reportService"
+import { Layout, Toast } from "../../components/ui"
+import { reportService } from "../../services/reportService"
 
 const Reports = () => {
     const [loading, setLoading] = useState(true)
