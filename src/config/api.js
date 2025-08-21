@@ -3,27 +3,44 @@ import { authService } from "../services/authService"
 
 // Get base URL from environment variable or fallback to localhost for development
 const getBaseURL = () => {
+    console.log("🔧 Environment check:", {
+        VITE_API_URL: import.meta.env.VITE_API_URL,
+        PROD: import.meta.env.PROD,
+        DEV: import.meta.env.DEV,
+        MODE: import.meta.env.MODE,
+        location: window.location.origin,
+    })
+
     // Use environment variable if available
     if (import.meta.env.VITE_API_URL) {
+        console.log("📡 Using VITE_API_URL:", import.meta.env.VITE_API_URL)
         return import.meta.env.VITE_API_URL
     }
 
     // Check if we're in production (Vite sets this automatically)
     if (import.meta.env.PROD) {
         // In production, use the same domain as the frontend
-        return `${window.location.origin}/api`
+        const prodURL = `${window.location.origin}/api`
+        console.log("📡 Using production URL:", prodURL)
+        return prodURL
     }
 
     // In development, use localhost
-    return "http://localhost:8000/api"
+    const devURL = "http://localhost:8000/api"
+    console.log("📡 Using development URL:", devURL)
+    return devURL
 }
 
+const baseURL = getBaseURL()
+console.log("🚀 Final API Base URL:", baseURL)
+
 const api = axios.create({
-    baseURL: getBaseURL(),
+    baseURL: baseURL,
     headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
     },
+    timeout: 10000, // 10 second timeout
 })
 
 // Add a request interceptor
