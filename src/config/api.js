@@ -1,8 +1,25 @@
 import axios from "axios"
 import { authService } from "../services/authService"
 
+// Get base URL from environment variable or fallback to localhost for development
+const getBaseURL = () => {
+    // Use environment variable if available
+    if (import.meta.env.VITE_API_URL) {
+        return import.meta.env.VITE_API_URL
+    }
+
+    // Check if we're in production (Vite sets this automatically)
+    if (import.meta.env.PROD) {
+        // In production, use the same domain as the frontend
+        return `${window.location.origin}/api`
+    }
+
+    // In development, use localhost
+    return "http://localhost:8000/api"
+}
+
 const api = axios.create({
-    baseURL: "http://localhost:8000/api",
+    baseURL: getBaseURL(),
     headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
