@@ -8,6 +8,7 @@ import {
     StatCard,
     QuickActionCard,
     DataTable,
+    ConfirmModal,
 } from "../../components/ui"
 
 const AdminDashboard = () => {
@@ -26,6 +27,8 @@ const AdminDashboard = () => {
     })
     const [loading, setLoading] = useState(true)
     const [selectedPeriod, setSelectedPeriod] = useState("month")
+    const [confirmOpen, setConfirmOpen] = useState(false)
+    const [deletingUserId, setDeletingUserId] = useState(null)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -54,7 +57,6 @@ const AdminDashboard = () => {
             if (statsResponse.success) {
                 setStats(statsResponse.data)
             } else {
-                // Set default stats if API fails
                 setStats({
                     total_users: usersResponse.success
                         ? usersResponse.data.data?.length || 0
@@ -91,7 +93,6 @@ const AdminDashboard = () => {
                 })
             }
         } catch {
-            // Set default stats on error
             setStats({
                 total_users: 0,
                 active_users: 0,
@@ -107,13 +108,12 @@ const AdminDashboard = () => {
         }
     }
 
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat("id-ID", {
+    const formatCurrency = (amount) =>
+        new Intl.NumberFormat("id-ID", {
             style: "currency",
             currency: "IDR",
             minimumFractionDigits: 0,
         }).format(amount)
-    }
 
     const usersColumns = {
         avatar: (user) => (
@@ -130,16 +130,16 @@ const AdminDashboard = () => {
             color: user.is_active ? "green" : "red",
         }),
         amount: null,
-        actions: (user) => [
+        actions: (row) => [
             {
                 label: "Edit",
                 onClick: () =>
-                    navigate(`/admin/users?edit=${user.id || user._id}`),
+                    navigate(`/admin/users?edit=${row.id || row._id}`),
                 color: "blue",
             },
             {
                 label: "Delete",
-                onClick: () => handleDeleteUser(user.id),
+                onClick: () => askDeleteUser(row.id || row._id),
                 color: "red",
             },
         ],
@@ -174,14 +174,20 @@ const AdminDashboard = () => {
         ],
     }
 
-    const handleDeleteUser = async (userId) => {
-        if (window.confirm("Apakah Anda yakin ingin menghapus user ini?")) {
-            try {
-                console.log("Deleting user:", userId)
-                loadData()
-            } catch (error) {
-                console.error("Error deleting user:", error)
-            }
+    const askDeleteUser = (userId) => {
+        setDeletingUserId(userId)
+        setConfirmOpen(true)
+    }
+
+    const confirmDeleteUser = async () => {
+        try {
+            console.log("Deleting user:", deletingUserId)
+            await loadData()
+        } catch (error) {
+            console.error("Error deleting user:", error)
+        } finally {
+            setConfirmOpen(false)
+            setDeletingUserId(null)
         }
     }
 
@@ -189,13 +195,13 @@ const AdminDashboard = () => {
         <AdminLayout user={user}>
             {loading ? (
                 // Loading State - Full Screen
-                <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
                     <div className="text-center">
-                        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-                        <h2 className="text-xl font-semibold text-gray-700 mb-2">
+                        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 dark:border-indigo-400 mx-auto mb-4"></div>
+                        <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
                             Loading Dashboard...
                         </h2>
-                        <p className="text-gray-500">
+                        <p className="text-gray-500 dark:text-gray-400">
                             Please wait while we load your data
                         </p>
                     </div>
@@ -353,11 +359,11 @@ const AdminDashboard = () => {
                         {/* Data Status Message */}
                         {stats.total_users === 0 &&
                             stats.total_records === 0 && (
-                                <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                                <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                                        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center">
                                             <svg
-                                                className="w-5 h-5 text-blue-600"
+                                                className="w-5 h-5 text-blue-600 dark:text-blue-400"
                                                 fill="none"
                                                 stroke="currentColor"
                                                 viewBox="0 0 24 24"
@@ -371,10 +377,10 @@ const AdminDashboard = () => {
                                             </svg>
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-semibold text-blue-900">
+                                            <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-200">
                                                 Data Kosong
                                             </h3>
-                                            <p className="text-blue-700">
+                                            <p className="text-blue-700 dark:text-blue-300">
                                                 Belum ada data users atau tax
                                                 records. Silakan tambahkan data
                                                 melalui menu yang tersedia.
@@ -385,9 +391,9 @@ const AdminDashboard = () => {
                             )}
 
                         {/* Financial Overview */}
-                        <div className="bg-white rounded-2xl shadow-lg p-6">
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
                             <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-xl font-bold text-gray-900">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                                     Financial Overview
                                 </h3>
                                 <div className="flex items-center gap-2">
@@ -396,7 +402,7 @@ const AdminDashboard = () => {
                                         onChange={(e) =>
                                             setSelectedPeriod(e.target.value)
                                         }
-                                        className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
                                         <option value="today">Today</option>
                                         <option value="week">This Week</option>
@@ -409,7 +415,7 @@ const AdminDashboard = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+                                <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 rounded-xl p-6 border border-green-200 dark:border-green-800">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
                                             <svg
@@ -426,21 +432,21 @@ const AdminDashboard = () => {
                                                 />
                                             </svg>
                                         </div>
-                                        <div className="text-green-600 text-sm font-medium">
+                                        <div className="text-green-600 dark:text-green-400 text-sm font-medium">
                                             {stats.total_tax > 0
                                                 ? "+15.3%"
                                                 : "0%"}
                                         </div>
                                     </div>
-                                    <div className="text-2xl font-bold text-gray-900 mb-1">
+                                    <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                                         {formatCurrency(stats.total_tax || 0)}
                                     </div>
-                                    <div className="text-gray-600 text-sm">
+                                    <div className="text-gray-600 dark:text-gray-300 text-sm">
                                         Total Tax Amount
                                     </div>
                                 </div>
 
-                                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+                                <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
                                             <svg
@@ -457,21 +463,21 @@ const AdminDashboard = () => {
                                                 />
                                             </svg>
                                         </div>
-                                        <div className="text-blue-600 text-sm font-medium">
+                                        <div className="text-blue-600 dark:text-blue-400 text-sm font-medium">
                                             {stats.paid_tax > 0
                                                 ? "+8.7%"
                                                 : "0%"}
                                         </div>
                                     </div>
-                                    <div className="text-2xl font-bold text-gray-900 mb-1">
+                                    <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                                         {formatCurrency(stats.paid_tax || 0)}
                                     </div>
-                                    <div className="text-gray-600 text-sm">
+                                    <div className="text-gray-600 dark:text-gray-300 text-sm">
                                         Successfully Paid
                                     </div>
                                 </div>
 
-                                <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+                                <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/30 dark:to-orange-800/30 rounded-xl p-6 border border-orange-200 dark:border-orange-800">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center">
                                             <svg
@@ -488,16 +494,16 @@ const AdminDashboard = () => {
                                                 />
                                             </svg>
                                         </div>
-                                        <div className="text-orange-600 text-sm font-medium">
+                                        <div className="text-orange-600 dark:text-orange-400 text-sm font-medium">
                                             {stats.unpaid_tax > 0
                                                 ? "-2.1%"
                                                 : "0%"}
                                         </div>
                                     </div>
-                                    <div className="text-2xl font-bold text-gray-900 mb-1">
+                                    <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                                         {formatCurrency(stats.unpaid_tax || 0)}
                                     </div>
-                                    <div className="text-gray-600 text-sm">
+                                    <div className="text-gray-600 dark:text-gray-300 text-sm">
                                         Outstanding Amount
                                     </div>
                                 </div>
@@ -567,6 +573,20 @@ const AdminDashboard = () => {
                             />
                         </div>
                     </div>
+
+                    {confirmOpen && (
+                        <ConfirmModal
+                            isOpen={confirmOpen}
+                            title="Hapus User"
+                            message={
+                                "Apakah Anda yakin ingin menghapus user ini?\nTindakan ini tidak dapat dibatalkan."
+                            }
+                            confirmText="Hapus"
+                            cancelText="Batal"
+                            onConfirm={confirmDeleteUser}
+                            onCancel={() => setConfirmOpen(false)}
+                        />
+                    )}
                 </>
             )}
         </AdminLayout>

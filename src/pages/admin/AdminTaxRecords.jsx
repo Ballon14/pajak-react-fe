@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { AdminLayout, DataTable, Toast } from "../../components/ui"
+import {
+    AdminLayout,
+    DataTable,
+    Toast,
+    ConfirmModal,
+} from "../../components/ui"
 import { authService } from "../../services/authService"
 import { taxRecordService } from "../../services/taxRecordService"
 
@@ -29,6 +34,10 @@ const AdminTaxRecords = () => {
     })
     const [saving, setSaving] = useState(false)
     const [editLoading, setEditLoading] = useState(false)
+
+    // Confirm modal for delete
+    const [confirmOpen, setConfirmOpen] = useState(false)
+    const [deletingRecord, setDeletingRecord] = useState(null)
 
     useEffect(() => {
         const userData = authService.getUserFromStorage()
@@ -59,7 +68,6 @@ const AdminTaxRecords = () => {
     }
 
     const handleViewDetail = (record) => {
-        // Navigate to admin detail page
         const recordId = record.id || record._id
         navigate(`/admin/tax-records/${recordId}`)
     }
@@ -67,7 +75,6 @@ const AdminTaxRecords = () => {
     const handleEdit = async (record) => {
         try {
             setEditLoading(true)
-            // Load fresh data from API before opening edit modal
             const recordId = record.id || record._id
             const response = await taxRecordService.getByIdAdmin(recordId)
 
@@ -112,30 +119,36 @@ const AdminTaxRecords = () => {
         }
     }
 
-    const handleDelete = async (record) => {
-        const recordId = record.id || record._id
-        const recordName = record.name || record.spt_number
+    const askDelete = (record) => {
+        setDeletingRecord(record)
+        setConfirmOpen(true)
+    }
 
-        if (
-            window.confirm(
-                `Apakah Anda yakin ingin menghapus data pajak "${recordName}"?`
-            )
-        ) {
-            try {
-                const response = await taxRecordService.delete(recordId)
-                if (response.success) {
-                    showToast("Data pajak berhasil dihapus", "success")
-                    await loadRecords() // Reload the list
-                } else {
-                    showToast(
-                        response.message || "Gagal menghapus data pajak",
-                        "error"
-                    )
-                }
-            } catch (err) {
-                showToast(err.message || "Gagal menghapus data pajak", "error")
+    const confirmDelete = async () => {
+        if (!deletingRecord) return
+        const recordId = deletingRecord.id || deletingRecord._id
+        try {
+            const response = await taxRecordService.delete(recordId)
+            if (response.success) {
+                showToast("Data pajak berhasil dihapus", "success")
+                await loadRecords()
+            } else {
+                showToast(
+                    response.message || "Gagal menghapus data pajak",
+                    "error"
+                )
             }
+        } catch (err) {
+            showToast(err.message || "Gagal menghapus data pajak", "error")
+        } finally {
+            setConfirmOpen(false)
+            setDeletingRecord(null)
         }
+    }
+
+    const cancelDelete = () => {
+        setConfirmOpen(false)
+        setDeletingRecord(null)
     }
 
     const handleEditChange = (e) => {
@@ -166,8 +179,6 @@ const AdminTaxRecords = () => {
 
     const handleSaveEdit = async () => {
         if (!editingRecord) return
-
-        // Validation
         if (
             !editForm.name ||
             !editForm.address ||
@@ -179,7 +190,6 @@ const AdminTaxRecords = () => {
             showToast("Mohon lengkapi semua field yang wajib diisi", "warning")
             return
         }
-
         if (editForm.status === "lunas" && !editForm.payment_date) {
             showToast(
                 "Tanggal pembayaran wajib diisi jika status Lunas",
@@ -187,31 +197,25 @@ const AdminTaxRecords = () => {
             )
             return
         }
-
         try {
             setSaving(true)
             const recordId = editingRecord.id || editingRecord._id
-
             const updateData = {
                 ...editForm,
                 year: parseInt(editForm.year),
                 amount: parseFloat(editForm.amount),
             }
-
-            // Remove payment_date if status is not lunas
             if (editForm.status !== "lunas") {
                 updateData.payment_date = null
             }
-
             const response = await taxRecordService.updateAdmin(
                 recordId,
                 updateData
             )
-
             if (response.success) {
                 showToast("Data pajak berhasil diperbarui", "success")
                 closeEditModal()
-                await loadRecords() // Reload the list
+                await loadRecords()
             } else {
                 showToast(
                     response.message || "Gagal memperbarui data pajak",
@@ -234,7 +238,8 @@ const AdminTaxRecords = () => {
             </div>
         ),
         primary: (record) => record.name,
-        secondary: (record) => `${record.tax_type} - ${record.year}`,
+        secondary: (record) =>
+            `${record.tax_type} - ${record.year} • ${record.user?.name || "-"}`,
         badge: (record) => ({
             text:
                 record.status === "lunas"
@@ -267,11 +272,7 @@ const AdminTaxRecords = () => {
                 color: "yellow",
                 disabled: editLoading,
             },
-            {
-                label: "Delete",
-                onClick: () => handleDelete(record),
-                color: "red",
-            },
+            { label: "Delete", onClick: () => askDelete(record), color: "red" },
         ],
     }
 
@@ -280,10 +281,10 @@ const AdminTaxRecords = () => {
             <div className="p-6 space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
+                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                             Data Pajak (Admin)
                         </h1>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-300">
                             Lihat semua data pajak dari seluruh pengguna
                         </p>
                     </div>
@@ -295,7 +296,9 @@ const AdminTaxRecords = () => {
                             Refresh
                         </button>
                         <button
-                            onClick={() => navigate("/tax-records/create")}
+                            onClick={() =>
+                                navigate("/admin/tax-records/create")
+                            }
                             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium"
                         >
                             Tambah Data
@@ -304,8 +307,8 @@ const AdminTaxRecords = () => {
                 </div>
 
                 {/* Quick Status Overview */}
-                <div className="bg-white rounded-2xl shadow-lg p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                         Quick Actions
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -327,7 +330,7 @@ const AdminTaxRecords = () => {
                                         "info"
                                     )
                                 }}
-                                className="w-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded-lg font-medium transition-colors"
+                                className="w-full bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg font-medium transition-colors"
                             >
                                 <div className="text-2xl font-bold">
                                     {
@@ -357,7 +360,7 @@ const AdminTaxRecords = () => {
                                         "info"
                                     )
                                 }}
-                                className="w-full bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-lg font-medium transition-colors"
+                                className="w-full bg-yellow-50 hover:bg-yellow-100 dark:bg-yellow-900/30 dark:hover:bg-yellow-900/50 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300 px-4 py-3 rounded-lg font-medium transition-colors"
                             >
                                 <div className="text-2xl font-bold">
                                     {
@@ -387,7 +390,7 @@ const AdminTaxRecords = () => {
                                         "info"
                                     )
                                 }}
-                                className="w-full bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-lg font-medium transition-colors"
+                                className="w-full bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/50 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300 px-4 py-3 rounded-lg font-medium transition-colors"
                             >
                                 <div className="text-2xl font-bold">
                                     {
@@ -701,6 +704,22 @@ const AdminTaxRecords = () => {
                     message={toast.message}
                     type={toast.type}
                     onClose={() => setToast(null)}
+                />
+            )}
+
+            {confirmOpen && (
+                <ConfirmModal
+                    isOpen={confirmOpen}
+                    title="Hapus Data Pajak"
+                    message={`Apakah Anda yakin ingin menghapus data pajak "${
+                        deletingRecord?.name ||
+                        deletingRecord?.spt_number ||
+                        "(tanpa nama)"
+                    }"?\nTindakan ini tidak dapat dibatalkan.`}
+                    confirmText="Hapus"
+                    cancelText="Batal"
+                    onConfirm={confirmDelete}
+                    onCancel={cancelDelete}
                 />
             )}
         </AdminLayout>

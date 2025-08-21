@@ -105,46 +105,46 @@ const StatCard = ({
 
     const colorMap = {
         blue: {
-            bg: "bg-blue-50",
-            border: "border-blue-200",
-            icon: "text-blue-600",
-            trend: "text-blue-600",
-            trendBg: "bg-blue-100",
+            bg: "bg-blue-50 dark:bg-blue-900/30",
+            border: "border-blue-200 dark:border-blue-800",
+            icon: "text-blue-600 dark:text-blue-400",
+            trend: "text-blue-600 dark:text-blue-400",
+            trendBg: "bg-blue-100 dark:bg-blue-900/50",
         },
         green: {
-            bg: "bg-green-50",
-            border: "border-green-200",
-            icon: "text-green-600",
-            trend: "text-green-600",
-            trendBg: "bg-green-100",
+            bg: "bg-green-50 dark:bg-green-900/30",
+            border: "border-green-200 dark:border-green-800",
+            icon: "text-green-600 dark:text-green-400",
+            trend: "text-green-600 dark:text-green-400",
+            trendBg: "bg-green-100 dark:bg-green-900/50",
         },
         yellow: {
-            bg: "bg-yellow-50",
-            border: "border-yellow-200",
-            icon: "text-yellow-600",
-            trend: "text-yellow-600",
-            trendBg: "bg-yellow-100",
+            bg: "bg-yellow-50 dark:bg-yellow-900/30",
+            border: "border-yellow-200 dark:border-yellow-800",
+            icon: "text-yellow-600 dark:text-yellow-400",
+            trend: "text-yellow-600 dark:text-yellow-400",
+            trendBg: "bg-yellow-100 dark:bg-yellow-900/50",
         },
         red: {
-            bg: "bg-red-50",
-            border: "border-red-200",
-            icon: "text-red-600",
-            trend: "text-red-600",
-            trendBg: "bg-red-100",
+            bg: "bg-red-50 dark:bg-red-900/30",
+            border: "border-red-200 dark:border-red-800",
+            icon: "text-red-600 dark:text-red-400",
+            trend: "text-red-600 dark:text-red-400",
+            trendBg: "bg-red-100 dark:bg-red-900/50",
         },
         purple: {
-            bg: "bg-purple-50",
-            border: "border-purple-200",
-            icon: "text-purple-600",
-            trend: "text-purple-600",
-            trendBg: "bg-purple-100",
+            bg: "bg-purple-50 dark:bg-purple-900/30",
+            border: "border-purple-200 dark:border-purple-800",
+            icon: "text-purple-600 dark:text-purple-400",
+            trend: "text-purple-600 dark:text-purple-400",
+            trendBg: "bg-purple-100 dark:bg-purple-900/50",
         },
         orange: {
-            bg: "bg-orange-50",
-            border: "border-orange-200",
-            icon: "text-orange-600",
-            trend: "text-orange-600",
-            trendBg: "bg-orange-100",
+            bg: "bg-orange-50 dark:bg-orange-900/30",
+            border: "border-orange-200 dark:border-orange-800",
+            icon: "text-orange-600 dark:text-orange-400",
+            trend: "text-orange-600 dark:text-orange-400",
+            trendBg: "bg-orange-100 dark:bg-orange-900/50",
         },
     }
 
@@ -164,7 +164,7 @@ const StatCard = ({
 
     return (
         <div
-            className={`bg-white rounded-2xl shadow-lg border ${colors.border} hover:shadow-xl transition-all duration-300 group`}
+            className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg border ${colors.border} hover:shadow-xl transition-all duration-300 group`}
         >
             <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -198,14 +198,16 @@ const StatCard = ({
                 </div>
 
                 <div className="space-y-2">
-                    <div className="text-3xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors">
+                    <div className="text-3xl font-bold text-gray-900 dark:text-white group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
                         {formatValue(value)}
                     </div>
-                    <div className="text-sm font-medium text-gray-600">
+                    <div className="text-sm font-medium text-gray-600 dark:text-gray-300">
                         {label}
                     </div>
                     {subtitle && (
-                        <div className="text-xs text-gray-500">{subtitle}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {subtitle}
+                        </div>
                     )}
                 </div>
             </div>

@@ -328,8 +328,8 @@ const Dashboard = () => {
                 </div>
 
                 {/* Aktivitas Terbaru */}
-                    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                                 <svg
                                     className="w-6 h-6 text-blue-600"
                                     fill="none"
@@ -583,7 +583,7 @@ function StatCard({
     }
     return (
         <div
-            className={`bg-white rounded-xl shadow-lg p-5 border border-gray-100 flex flex-col items-start gap-2 ${
+            className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5 border border-gray-100 dark:border-gray-700 flex flex-col items-start gap-2 ${
                 isOutstanding ? "ring-2 ring-orange-400" : ""
             }`}
         >
@@ -592,8 +592,10 @@ function StatCard({
             >
                 {iconMap[icon]}
                             </div>
-            <p className="text-xs font-medium text-gray-500 mt-2">{label}</p>
-            <p className="text-xl md:text-2xl font-bold text-gray-900">
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-2">
+                {label}
+            </p>
+            <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
                 {isNumber
                     ? value
                     : new Intl.NumberFormat("id-ID", {
@@ -672,15 +674,15 @@ function QuickActionCard({ icon, title, desc, color, onClick, buttonLabel }) {
     }
     return (
         <div
-            className={`bg-white rounded-xl shadow-lg p-6 border border-gray-100 flex flex-col items-start gap-3 hover:shadow-xl transition group`}
+            className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 flex flex-col items-start gap-3 hover:shadow-xl transition group`}
         >
             <div
                 className={`w-10 h-10 rounded-lg flex items-center justify-center ${colorMap[color]}`}
             >
                 {iconMap[icon]}
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-            <p className="text-gray-600 text-sm flex-1">{desc}</p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
+            <p className="text-gray-600 dark:text-gray-300 text-sm flex-1">{desc}</p>
             <button
                 onClick={onClick}
                 className={`w-full mt-2 bg-${color}-600 hover:bg-${color}-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200`}

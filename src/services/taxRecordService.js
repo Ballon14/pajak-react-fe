@@ -67,13 +67,24 @@ export const taxRecordService = {
         }
     },
 
-    // Create new tax record
+    // Create new tax record (current user)
     create: async (data) => {
         try {
             const response = await api.post("/tax-records", data)
             return response.data
         } catch (error) {
             console.error("Error creating tax record:", error)
+            throw error
+        }
+    },
+
+    // Create new tax record for any user (admin)
+    createAdmin: async (data) => {
+        try {
+            const response = await api.post("/admin/tax-records", data)
+            return response.data
+        } catch (error) {
+            console.error("Error creating admin tax record:", error)
             throw error
         }
     },

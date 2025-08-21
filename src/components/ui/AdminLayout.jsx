@@ -1,11 +1,22 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import AdminSidebar from "./AdminSidebar"
+import { getAdminSettings } from "../../services/settingsService"
 
 const AdminLayout = ({ children, user }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
 
+    useEffect(() => {
+        const { theme } = getAdminSettings()
+        const root = document.documentElement
+        if (theme === "dark") {
+            root.classList.add("dark")
+        } else {
+            root.classList.remove("dark")
+        }
+    }, [])
+
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900 dark:text-gray-100">
             {/* Admin Sidebar Component */}
             <AdminSidebar
                 user={user}
@@ -16,11 +27,11 @@ const AdminLayout = ({ children, user }) => {
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col pl-0 lg:pl-64">
                 {/* Mobile Header */}
-                <div className="lg:hidden bg-white shadow-sm border-b border-gray-200">
+                <div className="lg:hidden bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between px-4 py-3">
                         <button
                             onClick={() => setSidebarOpen(true)}
-                            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                         >
                             <svg
                                 className="w-6 h-6"
@@ -44,7 +55,7 @@ const AdminLayout = ({ children, user }) => {
                                 </span>
                             </div>
                             <div>
-                                <p className="text-sm font-medium text-gray-900">
+                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {user?.name}
                                 </p>
                                 <p className="text-xs text-gray-500">

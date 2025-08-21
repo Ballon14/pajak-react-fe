@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { Layout, Toast } from "../../components/ui"
+import { Layout, Toast, ConfirmModal } from "../../components/ui"
 import { taxRecordService } from "../../services/taxRecordService"
 
 const TaxRecords = () => {
@@ -15,6 +15,11 @@ const TaxRecords = () => {
         year: "",
         showOutstanding: false,
     })
+
+    // Confirm modals
+    const [confirmOpen, setConfirmOpen] = useState(false)
+    const [confirmMessage, setConfirmMessage] = useState("")
+    const [confirmAction, setConfirmAction] = useState(() => () => {})
 
     useEffect(() => {
         loadTaxRecords()
@@ -56,13 +61,14 @@ const TaxRecords = () => {
         navigate(`/tax-records/${recordId}/edit`)
     }
 
-    const handleDelete = async (recordId) => {
-        if (window.confirm("Apakah Anda yakin ingin menghapus data PBB ini?")) {
+    const askDelete = (recordId) => {
+        setConfirmMessage("Apakah Anda yakin ingin menghapus data PBB ini?")
+        setConfirmAction(() => async () => {
             try {
                 const response = await taxRecordService.delete(recordId)
                 if (response.success) {
                     showToast("Data PBB berhasil dihapus", "success")
-                    loadTaxRecords() // Reload data
+                    loadTaxRecords()
                 } else {
                     showToast(
                         response.message || "Gagal menghapus data PBB",
@@ -72,51 +78,35 @@ const TaxRecords = () => {
             } catch (error) {
                 console.error("Error deleting tax record:", error)
                 showToast("Gagal menghapus data PBB", "error")
+            } finally {
+                setConfirmOpen(false)
             }
-        }
+        })
+        setConfirmOpen(true)
     }
 
     const handleView = (recordId) => {
         navigate(`/tax-records/${recordId}`)
     }
 
-    const handleExport = async (format) => {
-        setLoading(true)
-
-        // Simulate export process
-        setTimeout(() => {
-            showToast(
-                `Data akan diekspor dalam format ${format.toUpperCase()}`,
-                "success"
-            )
-            setLoading(false)
-        }, 2000)
-    }
-
-    const handlePrint = () => {
-        window.print()
-    }
-
-    const handleCreateNewYear = async () => {
-        if (
-            window.confirm(
-                "Apakah Anda yakin ingin membuat data PBB untuk tahun baru? Data akan dibuat berdasarkan data tahun sebelumnya dengan kenaikan 10%."
-            )
-        ) {
+    const askCreateNewYear = () => {
+        const currentYear = new Date().getFullYear()
+        setConfirmMessage(
+            `Apakah Anda yakin ingin membuat data PBB untuk tahun baru?\nData akan dibuat berdasarkan data tahun sebelumnya dengan kenaikan 10%. (Tahun: ${currentYear})`
+        )
+        setConfirmAction(() => async () => {
             try {
                 setLoading(true)
-                const currentYear = new Date().getFullYear()
                 const response = await taxRecordService.createForYear(
                     currentYear
                 )
-
                 if (response.success) {
                     let message = `Berhasil membuat ${response.count} data PBB untuk tahun ${currentYear}`
                     if (response.outstandingCount > 0) {
                         message += ` (${response.outstandingCount} tunggakan, ${response.newYearCount} data baru)`
                     }
                     showToast(message, "success")
-                    loadTaxRecords() // Reload data
+                    loadTaxRecords()
                 } else {
                     showToast(
                         response.message || "Gagal membuat data tahun baru",
@@ -128,8 +118,10 @@ const TaxRecords = () => {
                 showToast("Gagal membuat data tahun baru", "error")
             } finally {
                 setLoading(false)
+                setConfirmOpen(false)
             }
-        }
+        })
+        setConfirmOpen(true)
     }
 
     if (loading) {
@@ -160,7 +152,7 @@ const TaxRecords = () => {
                     </div>
                     <div className="flex space-x-3">
                         <button
-                            onClick={handlePrint}
+                            onClick={() => window.print()}
                             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 print:hidden"
                         >
                             <svg
@@ -179,7 +171,7 @@ const TaxRecords = () => {
                             <span>Print List</span>
                         </button>
                         <button
-                            onClick={handleCreateNewYear}
+                            onClick={askCreateNewYear}
                             className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 print:hidden"
                         >
                             <svg
@@ -197,25 +189,25 @@ const TaxRecords = () => {
                             </svg>
                             <span>Buat Data Tahun Baru</span>
                         </button>
-                    <button
-                        onClick={() => navigate("/tax-records/create")}
+                        <button
+                            onClick={() => navigate("/tax-records/create")}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 print:hidden"
-                    >
-                        <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
                         >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                            />
-                        </svg>
-                        <span>Tambah Data</span>
-                    </button>
+                            <svg
+                                className="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                />
+                            </svg>
+                            <span>Tambah Data</span>
+                        </button>
                     </div>
                 </div>
 
@@ -236,10 +228,10 @@ const TaxRecords = () => {
                 </div>
 
                 {/* Filter and Search */}
-                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 print:hidden">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 print:hidden">
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Filter Status
                             </label>
                             <select
@@ -250,7 +242,7 @@ const TaxRecords = () => {
                                         status: e.target.value,
                                     })
                                 }
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
                                 <option value="">Semua Status</option>
                                 <option value="lunas">Lunas</option>
@@ -342,39 +334,39 @@ const TaxRecords = () => {
                 </div>
 
                 {/* Table */}
-                <div className="bg-white rounded-xl shadow-lg border border-gray-100 print:shadow-none print:border-none print:p-0">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 print:shadow-none print:border-none print:p-0">
                     <div className="overflow-x-auto print:overflow-visible">
-                        <table className="min-w-full divide-y divide-gray-200 print:divide-gray-300">
-                            <thead className="bg-gray-50 print:bg-gray-100">
+                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 print:divide-gray-300">
+                            <thead className="bg-gray-50 dark:bg-gray-700 print:bg-gray-100">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Nama
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Alamat
-                                        </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Jenis Pajak
-                                        </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Nomor SPT
-                                        </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Tahun
-                                        </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
-                                            Jumlah
-                                        </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
-                                            Status
-                                        </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:hidden">
-                                            Aksi
-                                        </th>
-                                    </tr>
-                                </thead>
-                            <tbody className="bg-white divide-y divide-gray-200 print:divide-gray-300">
-                                    {records.map((record, index) => (
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                        Jumlah
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                        Status
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:hidden">
+                                        Aksi
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 print:divide-gray-300">
+                                {records.map((record) => (
                                     <tr
                                         key={record._id}
                                         className="hover:bg-gray-50 print:hover:bg-white"
@@ -384,42 +376,42 @@ const TaxRecords = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:text-base print:px-4 print:py-2">
                                             {record.address || "-"}
-                                            </td>
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 print:text-base print:px-4 print:py-2">
-                                                {record.tax_type}
-                                            </td>
+                                            {record.tax_type}
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:text-base print:px-4 print:py-2">
-                                                {record.spt_number}
-                                            </td>
+                                            {record.spt_number}
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:text-base print:px-4 print:py-2">
                                             {record.year}
-                                            </td>
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 print:text-base print:px-4 print:py-2">
                                             {new Intl.NumberFormat("id-ID", {
-                                                        style: "currency",
-                                                        currency: "IDR",
-                                                        minimumFractionDigits: 0,
-                                                        maximumFractionDigits: 0,
+                                                style: "currency",
+                                                currency: "IDR",
+                                                minimumFractionDigits: 0,
+                                                maximumFractionDigits: 0,
                                             }).format(record.amount)}
-                                            </td>
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap print:px-4 print:py-2">
-                                                <span
+                                            <span
                                                 className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                                     record.status === "lunas"
-                                                            ? "bg-green-100 text-green-800"
-                                                            : record.status ===
-                                                              "proses"
-                                                            ? "bg-yellow-100 text-yellow-800"
-                                                            : "bg-red-100 text-red-800"
+                                                        ? "bg-green-100 text-green-800"
+                                                        : record.status ===
+                                                          "proses"
+                                                        ? "bg-yellow-100 text-yellow-800"
+                                                        : "bg-red-100 text-red-800"
                                                 } print:border print:border-gray-300 print:bg-white print:text-black print:text-sm print:px-3 print:py-1`}
-                                                >
-                                                    {record.status === "lunas"
-                                                        ? "Lunas"
+                                            >
+                                                {record.status === "lunas"
+                                                    ? "Lunas"
                                                     : record.status === "proses"
-                                                        ? "Proses"
-                                                        : "Belum Lunas"}
-                                                </span>
-                                            </td>
+                                                    ? "Proses"
+                                                    : "Belum Lunas"}
+                                            </span>
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium print:hidden">
                                             <div className="flex items-center space-x-2">
                                                 {/* View/Detail Button */}
@@ -477,7 +469,7 @@ const TaxRecords = () => {
                                                 {/* Delete Button */}
                                                 <button
                                                     onClick={() =>
-                                                        handleDelete(record._id)
+                                                        askDelete(record._id)
                                                     }
                                                     className="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 transition-colors duration-200"
                                                     title="Hapus Data"
@@ -497,12 +489,12 @@ const TaxRecords = () => {
                                                     </svg>
                                                 </button>
                                             </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
             {toast && (
@@ -510,6 +502,18 @@ const TaxRecords = () => {
                     message={toast.message}
                     type={toast.type}
                     onClose={() => setToast(null)}
+                />
+            )}
+
+            {confirmOpen && (
+                <ConfirmModal
+                    isOpen={confirmOpen}
+                    title="Konfirmasi"
+                    message={confirmMessage}
+                    confirmText="Lanjut"
+                    cancelText="Batal"
+                    onConfirm={confirmAction}
+                    onCancel={() => setConfirmOpen(false)}
                 />
             )}
         </Layout>

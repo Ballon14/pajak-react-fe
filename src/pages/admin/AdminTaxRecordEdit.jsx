@@ -212,6 +212,29 @@ const AdminTaxRecordEdit = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                        {/* User Info */}
+                        {record?.user && (
+                            <div className="bg-gray-50 rounded-lg p-4 border">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                                        <span className="text-white font-bold text-sm">
+                                            {record.user.name
+                                                ?.charAt(0)
+                                                ?.toUpperCase() || "U"}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-gray-900">
+                                            {record.user.name}
+                                        </p>
+                                        <p className="text-sm text-gray-600">
+                                            {record.user.email}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Basic Information */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>

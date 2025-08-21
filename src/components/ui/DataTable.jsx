@@ -62,22 +62,22 @@ const DataTable = ({
     const displayData = data.slice(0, maxItems)
 
     return (
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                     {iconMap[icon]}
                     {title}
                 </h3>
                 <div className="flex items-center gap-3">
                     {totalCount !== undefined && (
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                             {totalCount} total
                         </span>
                     )}
                     {onViewAll && data.length > maxItems && (
                         <button
                             onClick={onViewAll}
-                            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                            className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
                         >
                             Lihat Semua
                         </button>
@@ -98,7 +98,9 @@ const DataTable = ({
             ) : (
                 <div className="text-center py-8">
                     {iconMap[emptyIcon] || iconMap.empty}
-                    <p className="text-gray-500">{emptyMessage}</p>
+                    <p className="text-gray-500 dark:text-gray-400">
+                        {emptyMessage}
+                    </p>
                 </div>
             )}
         </div>
@@ -107,7 +109,7 @@ const DataTable = ({
 
 const DataRow = ({ item, columns }) => {
     return (
-        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition">
+        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition">
             <div className="flex items-center gap-3">
                 {columns.avatar && (
                     <div className="w-10 h-10 rounded-full flex items-center justify-center">
@@ -131,7 +133,7 @@ const DataRow = ({ item, columns }) => {
                 )}
                 <div>
                     {columns.primary && (
-                        <div className="font-medium text-gray-900 text-sm">
+                        <div className="font-medium text-gray-900 dark:text-white text-sm">
                             {typeof columns.primary === "function"
                                 ? columns.primary(item)
                                 : columns.primary.getValue
@@ -140,7 +142,7 @@ const DataRow = ({ item, columns }) => {
                         </div>
                     )}
                     {columns.secondary && (
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
                             {typeof columns.secondary === "function"
                                 ? columns.secondary(item)
                                 : columns.secondary.getValue

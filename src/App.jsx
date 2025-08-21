@@ -19,8 +19,15 @@ import {
     AdminTaxRecords,
     AdminTaxRecordDetail,
     AdminTaxRecordEdit,
+    AdminTaxRecordCreate,
+    AdminUserCreate,
+    AdminReports,
+    AdminChat,
+    AdminSettings,
 } from "./pages"
 import { authService } from "./services/authService"
+import { ChatWidget } from "./components/ui"
+import { useEffect } from "react"
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -39,6 +46,42 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
 }
 
 function App() {
+    // Initialize theme on app startup
+    useEffect(() => {
+        const initializeTheme = () => {
+            try {
+                // Check for admin settings first
+                const adminSettings = localStorage.getItem("admin_settings")
+                if (adminSettings) {
+                    const parsed = JSON.parse(adminSettings)
+                    if (parsed.theme) {
+                        const root = document.documentElement
+                        if (parsed.theme === "dark") {
+                            root.classList.add("dark")
+                        } else {
+                            root.classList.remove("dark")
+                        }
+                        return
+                    }
+                }
+
+                // Fallback to system preference
+                if (
+                    window.matchMedia &&
+                    window.matchMedia("(prefers-color-scheme: dark)").matches
+                ) {
+                    document.documentElement.classList.add("dark")
+                } else {
+                    document.documentElement.classList.remove("dark")
+                }
+            } catch (error) {
+                console.error("Error initializing theme:", error)
+            }
+        }
+
+        initializeTheme()
+    }, [])
+
     return (
         <Router>
             <div className="App">
@@ -49,7 +92,10 @@ function App() {
                         path="/dashboard"
                         element={
                             <ProtectedRoute>
-                                <Dashboard />
+                                <>
+                                    <Dashboard />
+                                    <ChatWidget />
+                                </>
                             </ProtectedRoute>
                         }
                     />
@@ -57,7 +103,10 @@ function App() {
                         path="/tax-records"
                         element={
                             <ProtectedRoute>
-                                <TaxRecords />
+                                <>
+                                    <TaxRecords />
+                                    <ChatWidget />
+                                </>
                             </ProtectedRoute>
                         }
                     />
@@ -65,7 +114,10 @@ function App() {
                         path="/tax-records/create"
                         element={
                             <ProtectedRoute>
-                                <AddTaxRecord />
+                                <>
+                                    <AddTaxRecord />
+                                    <ChatWidget />
+                                </>
                             </ProtectedRoute>
                         }
                     />
@@ -73,7 +125,10 @@ function App() {
                         path="/tax-records/:id"
                         element={
                             <ProtectedRoute>
-                                <DetailTaxRecord />
+                                <>
+                                    <DetailTaxRecord />
+                                    <ChatWidget />
+                                </>
                             </ProtectedRoute>
                         }
                     />
@@ -81,7 +136,10 @@ function App() {
                         path="/tax-records/:id/edit"
                         element={
                             <ProtectedRoute>
-                                <EditTaxRecord />
+                                <>
+                                    <EditTaxRecord />
+                                    <ChatWidget />
+                                </>
                             </ProtectedRoute>
                         }
                     />
@@ -89,7 +147,10 @@ function App() {
                         path="/reports"
                         element={
                             <ProtectedRoute>
-                                <Reports />
+                                <>
+                                    <Reports />
+                                    <ChatWidget />
+                                </>
                             </ProtectedRoute>
                         }
                     />
@@ -110,10 +171,26 @@ function App() {
                         }
                     />
                     <Route
+                        path="/admin/users/create"
+                        element={
+                            <ProtectedRoute requireAdmin={true}>
+                                <AdminUserCreate />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
                         path="/admin/tax-records"
                         element={
                             <ProtectedRoute requireAdmin={true}>
                                 <AdminTaxRecords />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/tax-records/create"
+                        element={
+                            <ProtectedRoute requireAdmin={true}>
+                                <AdminTaxRecordCreate />
                             </ProtectedRoute>
                         }
                     />
@@ -130,6 +207,30 @@ function App() {
                         element={
                             <ProtectedRoute requireAdmin={true}>
                                 <AdminTaxRecordEdit />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/reports"
+                        element={
+                            <ProtectedRoute requireAdmin={true}>
+                                <AdminReports />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/chat"
+                        element={
+                            <ProtectedRoute requireAdmin={true}>
+                                <AdminChat />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/settings"
+                        element={
+                            <ProtectedRoute requireAdmin={true}>
+                                <AdminSettings />
                             </ProtectedRoute>
                         }
                     />

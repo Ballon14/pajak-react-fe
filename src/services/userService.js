@@ -6,6 +6,11 @@ export const userService = {
         return response.data
     },
 
+    async getAdminContact() {
+        const response = await api.get("/auth/admin-contact")
+        return response.data
+    },
+
     async createUser(userData) {
         const response = await api.post("/admin/users", userData)
         return response.data
