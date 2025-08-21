@@ -276,20 +276,20 @@ const DetailTaxRecord = () => {
                 </div>
 
                 {/* Detail Content */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 print:shadow-none print:border-none print:p-0 print:break-inside-avoid">
+                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 print:shadow-none print:border-none print:p-0 print:break-inside-avoid">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:gap-16">
                         {/* Left Column - Basic Info */}
                         <div className="space-y-6 print:space-y-2">
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 print:text-2xl print:mb-2">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-6 print:text-2xl print:mb-2">
                                     Informasi Dasar
                                 </h3>
                                 <div className="space-y-6 print:space-y-2">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 print:text-sm print:mb-1 print:font-semibold">
+                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
                                             Nama
                                         </label>
-                                        <p className="text-lg font-semibold text-gray-900 dark:text-white print:text-xl print:font-bold print:text-gray-800">
+                                        <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
                                             {record.name || "-"}
                                         </p>
                                     </div>

@@ -246,13 +246,13 @@ const AdminChat = () => {
     }
 
     const renderUserList = (onItemClick) => (
-        <div className="w-80 bg-white dark:bg-gray-800 flex flex-col h-full">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Live Chat
+        <div className="w-80 bg-white flex flex-col h-full">
+            <div className="p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">
+                    Chat dengan Admin
                 </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Chat dengan users
+                <p className="text-sm text-gray-500">
+                    {onlineUsers.length} pengguna online
                 </p>
             </div>
             <div className="flex-1 overflow-y-auto">
@@ -265,10 +265,8 @@ const AdminChat = () => {
                         <button
                             key={userId}
                             onClick={() => onItemClick(user)}
-                            className={`w-full p-4 text-left border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                                isActive
-                                    ? "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800"
-                                    : ""
+                            className={`w-full p-4 text-left border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                                isActive ? "bg-blue-50 border-blue-200" : ""
                             }`}
                         >
                             <div className="flex items-center justify-between">
@@ -290,10 +288,10 @@ const AdminChat = () => {
                                         ></div>
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="font-medium text-gray-900 dark:text-white truncate">
+                                        <div className="font-medium text-gray-900 truncate">
                                             {user.name}
                                         </div>
-                                        <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                                        <div className="text-sm text-gray-500 truncate">
                                             {user.email}
                                         </div>
                                     </div>
@@ -313,8 +311,8 @@ const AdminChat = () => {
 
     return (
         <AdminLayout user={me}>
-            <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
-                <div className="hidden md:flex md:shrink-0 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <div className="flex h-screen bg-gray-50">
+                <div className="hidden md:flex md:shrink-0 border-r border-gray-200 bg-white">
                     {renderUserList((u) => setActiveUser(u))}
                 </div>
                 {isListOpen && (
@@ -323,7 +321,7 @@ const AdminChat = () => {
                             className="absolute inset-0 bg-black/40"
                             onClick={() => setIsListOpen(false)}
                         ></div>
-                        <div className="absolute inset-y-0 left-0 w-80 bg-white dark:bg-gray-800 shadow-xl animate-fade-in-up">
+                        <div className="absolute inset-y-0 left-0 w-80 bg-white shadow-xl animate-fade-in-up">
                             {renderUserList((u) => {
                                 setActiveUser(u)
                                 setIsListOpen(false)
@@ -332,11 +330,11 @@ const AdminChat = () => {
                     </div>
                 )}
 
-                <div className="flex-1 flex flex-col">
-                    <div className="md:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 flex items-center gap-3">
+                <div className="flex-1 flex flex-col h-full">
+                    <div className="md:hidden bg-white border-b border-gray-200 p-3 flex items-center gap-3 flex-shrink-0">
                         <button
                             onClick={() => setIsListOpen(true)}
-                            className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white"
+                            className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700"
                         >
                             <svg
                                 className="w-5 h-5"
@@ -352,7 +350,7 @@ const AdminChat = () => {
                                 />
                             </svg>
                         </button>
-                        <div className="font-semibold dark:text-white">
+                        <div className="font-semibold">
                             {activeUser
                                 ? `Chat dengan ${activeUser.name}`
                                 : "Pilih user untuk chat"}
@@ -361,10 +359,10 @@ const AdminChat = () => {
 
                     {activeUser ? (
                         <>
-                            <div className="hidden md:flex items-center gap-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+                            <div className="hidden md:flex items-center gap-3 bg-white border-b border-gray-200 p-4 flex-shrink-0">
                                 <button
                                     onClick={backFromChat}
-                                    className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white"
+                                    className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700"
                                     title="Kembali"
                                 >
                                     <svg
@@ -389,10 +387,10 @@ const AdminChat = () => {
                                     </span>
                                 </div>
                                 <div>
-                                    <div className="font-semibold text-gray-900 dark:text-white">
+                                    <div className="font-semibold text-gray-900">
                                         {activeUser.name}
                                     </div>
-                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                    <div className="text-sm text-gray-500">
                                         {activeUser.email}
                                     </div>
                                 </div>
@@ -408,7 +406,7 @@ const AdminChat = () => {
                                     ></div>
                                     <button
                                         onClick={deleteConversation}
-                                        className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 dark:text-red-400"
+                                        className="p-2 rounded-lg border border-gray-300 text-red-600 hover:bg-red-50"
                                         title="Hapus riwayat"
                                     >
                                         <svg
@@ -428,15 +426,15 @@ const AdminChat = () => {
                                 </div>
                             </div>
 
-                            <div className="relative flex-1">
+                            <div className="flex-1 overflow-hidden">
                                 <div
                                     ref={listRef}
                                     onScroll={onListScroll}
-                                    className="absolute inset-0 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-gray-800 min-h-[50vh]"
+                                    className="h-full overflow-y-auto p-4 space-y-3 bg-gray-50"
                                 >
                                     {messages.length === 0 ? (
-                                        <div className="text-center text-gray-500 dark:text-gray-400 py-8 animate-fade-in-down">
-                                            <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <div className="text-center text-gray-500 py-8 animate-fade-in-down">
+                                            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
                                                 <svg
                                                     className="w-8 h-8 text-gray-400"
                                                     fill="none"
@@ -451,8 +449,8 @@ const AdminChat = () => {
                                                     />
                                                 </svg>
                                             </div>
-                                            <p className="dark:text-white">
-                                                Belum ada pesan
+                                            <p className="text-white">
+                                                Mulai percakapan dengan user ini
                                             </p>
                                             <p className="text-sm">
                                                 Mulai percakapan dengan mengirim
@@ -485,7 +483,7 @@ const AdminChat = () => {
                                                         className={`relative max-w-[80%] md:max-w-md px-4 py-2 rounded-2xl shadow ${
                                                             mine
                                                                 ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white"
-                                                                : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"
+                                                                : "bg-white border border-gray-200 text-gray-800"
                                                         } ${
                                                             msg._animate
                                                                 ? "animate-fade-in-up"
@@ -499,7 +497,7 @@ const AdminChat = () => {
                                                             className={`mt-1 text-[10px] text-right ${
                                                                 mine
                                                                     ? "text-blue-100"
-                                                                    : "text-gray-500 dark:text-gray-400"
+                                                                    : "text-gray-500"
                                                             }`}
                                                         >
                                                             {formatTime(
@@ -510,7 +508,7 @@ const AdminChat = () => {
                                                         {mine ? (
                                                             <span className="absolute -right-1 bottom-2 w-2 h-2 rotate-45 bg-indigo-600"></span>
                                                         ) : (
-                                                            <span className="absolute -left-1 bottom-2 w-2 h-2 rotate-45 bg-white dark:bg-gray-700 border-l border-b border-gray-200 dark:border-gray-600"></span>
+                                                            <span className="absolute -left-1 bottom-2 w-2 h-2 rotate-45 bg-white border-l border-b border-gray-200"></span>
                                                         )}
                                                     </div>
                                                     {mine && (
@@ -522,7 +520,7 @@ const AdminChat = () => {
                                     )}
                                     {isPartnerTyping && (
                                         <div className="flex justify-start">
-                                            <div className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 px-3 py-2 rounded-lg text-sm animate-fade-in-up dark:text-gray-200">
+                                            <div className="bg-white border border-gray-200 px-3 py-2 rounded-lg text-sm animate-fade-in-up">
                                                 Sedang mengetik...
                                             </div>
                                         </div>
@@ -534,7 +532,7 @@ const AdminChat = () => {
                                             scrollToBottom("smooth")
                                             setHasNewMessages(false)
                                         }}
-                                        className="absolute bottom-4 right-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur border border-gray-200 dark:border-gray-600 shadow-md px-3 py-1.5 rounded-full text-sm flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 animate-fade-in-up dark:text-white"
+                                        className="absolute bottom-4 right-4 bg-white/90 backdrop-blur border border-gray-200 shadow-md px-3 py-1.5 rounded-full text-sm flex items-center gap-2 hover:bg-white animate-fade-in-up"
                                     >
                                         <svg
                                             className="w-4 h-4"
@@ -557,7 +555,7 @@ const AdminChat = () => {
                                 )}
                             </div>
 
-                            <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-3 md:p-4">
+                            <div className="bg-white border-t border-gray-200 p-3 md:p-4 flex-shrink-0">
                                 <div className="flex items-center gap-2 md:gap-3">
                                     <input
                                         value={input}
@@ -565,7 +563,7 @@ const AdminChat = () => {
                                             setInput(e.target.value)
                                         }
                                         placeholder="Tulis pesan..."
-                                        className="flex-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus"
+                                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus"
                                         onKeyDown={(e) =>
                                             e.key === "Enter" && sendMessage()
                                         }
@@ -592,7 +590,7 @@ const AdminChat = () => {
                                     </button>
                                     <button
                                         onClick={deleteConversation}
-                                        className="hidden md:inline-flex p-3 rounded-full border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
+                                        className="hidden md:inline-flex p-3 rounded-full border border-red-200 text-red-600 hover:bg-red-50"
                                         title="Hapus riwayat"
                                     >
                                         <svg
@@ -629,9 +627,9 @@ const AdminChat = () => {
                             )}
                         </>
                     ) : (
-                        <div className="flex-1 flex items-center justify-center p-6">
-                            <div className="text-center text-gray-500 dark:text-gray-400 animate-fade-in-down">
-                                <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <div className="flex-1 flex items-center justify-center p-6 overflow-hidden">
+                            <div className="text-center text-gray-500 animate-fade-in-down">
+                                <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <svg
                                         className="w-12 h-12 text-gray-400"
                                         fill="none"
@@ -646,12 +644,11 @@ const AdminChat = () => {
                                         />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                                    Pilih User untuk Chat
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                                    Tidak ada pesan
                                 </h3>
-                                <p className="text-gray-500 dark:text-gray-400">
-                                    Pilih user dari daftar di sebelah kiri untuk
-                                    memulai percakapan
+                                <p className="text-gray-500">
+                                    Mulai percakapan dengan user ini
                                 </p>
                             </div>
                         </div>

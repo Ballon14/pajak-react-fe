@@ -77,11 +77,11 @@ const Login = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
             {/* Success Popup */}
             {showSuccessPopup && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 max-w-sm mx-4 text-center">
+                    <div className="bg-white rounded-xl shadow-2xl p-8 max-w-sm mx-4 text-center">
                         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                             <svg
                                 className="w-8 h-8 text-green-600"
@@ -97,10 +97,10 @@ const Login = () => {
                                 />
                             </svg>
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
                             Login Berhasil!
                         </h3>
-                        <p className="text-gray-600 dark:text-gray-300 mb-4">
+                        <p className="text-gray-600 mb-4">
                             Mohon tunggu sebentar...
                         </p>
                         <div className="flex justify-center">
@@ -137,18 +137,18 @@ const Login = () => {
                 </div>
 
                 {/* Login Form */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-100 dark:border-gray-700">
+                <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
                     <div className="mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">
                             Masuk ke Akun Anda
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-300">
+                        <p className="text-gray-600">
                             Silakan masukkan email dan password Anda
                         </p>
                     </div>
 
                     {error && (
-                        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
+                        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                             <div className="flex items-center">
                                 <svg
                                     className="w-5 h-5 text-red-500 mr-2"
@@ -163,7 +163,7 @@ const Login = () => {
                                         d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                     />
                                 </svg>
-                                <span className="text-red-700 dark:text-red-400 text-sm">
+                                <span className="text-red-700 text-sm">
                                     {error}
                                 </span>
                             </div>
@@ -176,13 +176,13 @@ const Login = () => {
                     >
                         {/* Email Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Email
                             </label>
                             <input
                                 type="email"
                                 {...register("email")}
-                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+                                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 ${
                                     errors.email
                                         ? "border-red-300"
                                         : "border-gray-300"
@@ -198,14 +198,14 @@ const Login = () => {
 
                         {/* Password Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Password
                             </label>
                             <div className="relative">
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     {...register("password")}
-                                    className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+                                    className={`w-full px-4 py-3 pr-12 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 ${
                                         errors.password
                                             ? "border-red-300"
                                             : "border-gray-300"

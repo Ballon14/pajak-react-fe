@@ -228,10 +228,10 @@ const TaxRecords = () => {
                 </div>
 
                 {/* Filter and Search */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 print:hidden">
+                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 print:hidden">
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
                                 Filter Status
                             </label>
                             <select
@@ -242,7 +242,7 @@ const TaxRecords = () => {
                                         status: e.target.value,
                                     })
                                 }
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
                                 <option value="">Semua Status</option>
                                 <option value="lunas">Lunas</option>
@@ -334,38 +334,38 @@ const TaxRecords = () => {
                 </div>
 
                 {/* Table */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 print:shadow-none print:border-none print:p-0">
+                <div className="bg-white rounded-xl shadow-lg border border-gray-100 print:shadow-none print:border-none print:p-0">
                     <div className="overflow-x-auto print:overflow-visible">
-                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 print:divide-gray-300">
-                            <thead className="bg-gray-50 dark:bg-gray-700 print:bg-gray-100">
+                        <table className="min-w-full divide-y divide-gray-200 print:divide-gray-300">
+                            <thead className="bg-gray-50 print:bg-gray-100">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Nama
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Alamat
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Jenis Pajak
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Nomor SPT
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Tahun
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Jumlah
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:text-sm print:px-4 print:py-2">
                                         Status
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider print:hidden">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider print:hidden">
                                         Aksi
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 print:divide-gray-300">
+                            <tbody className="bg-white divide-y divide-gray-200 print:divide-gray-300">
                                 {records.map((record) => (
                                     <tr
                                         key={record._id}

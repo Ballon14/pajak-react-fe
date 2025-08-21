@@ -108,56 +108,56 @@ const QuickActionCard = ({
         ),
     }
 
-    const colorMap = {
+    const colorSchemes = {
         blue: {
-            bg: "bg-blue-50 dark:bg-blue-900/30",
-            border: "border-blue-200 dark:border-blue-800",
-            icon: "text-blue-600 dark:text-blue-400",
-            button: "bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white",
-            hover: "hover:bg-blue-100 dark:hover:bg-blue-900/50",
+            bg: "bg-blue-50",
+            border: "border-blue-200",
+            icon: "text-blue-600",
+            button: "bg-blue-600 hover:bg-blue-700 text-white",
+            hover: "hover:bg-blue-100",
         },
         green: {
-            bg: "bg-green-50 dark:bg-green-900/30",
-            border: "border-green-200 dark:border-green-800",
-            icon: "text-green-600 dark:text-green-400",
-            button: "bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white",
-            hover: "hover:bg-green-100 dark:hover:bg-green-900/50",
+            bg: "bg-green-50",
+            border: "border-green-200",
+            icon: "text-green-600",
+            button: "bg-green-600 hover:bg-green-700 text-white",
+            hover: "hover:bg-green-100",
         },
         purple: {
-            bg: "bg-purple-50 dark:bg-purple-900/30",
-            border: "border-purple-200 dark:border-purple-800",
-            icon: "text-purple-600 dark:text-purple-400",
-            button: "bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-800 text-white",
-            hover: "hover:bg-purple-100 dark:hover:bg-purple-900/50",
+            bg: "bg-purple-50",
+            border: "border-purple-200",
+            icon: "text-purple-600",
+            button: "bg-purple-600 hover:bg-purple-700 text-white",
+            hover: "hover:bg-purple-100",
         },
         gray: {
-            bg: "bg-gray-50 dark:bg-gray-700",
-            border: "border-gray-200 dark:border-gray-600",
-            icon: "text-gray-600 dark:text-gray-400",
-            button: "bg-gray-600 hover:bg-gray-700 dark:bg-gray-600 dark:hover:bg-gray-700 text-white",
-            hover: "hover:bg-gray-100 dark:hover:bg-gray-600",
+            bg: "bg-gray-50",
+            border: "border-gray-200",
+            icon: "text-gray-600",
+            button: "bg-gray-600 hover:bg-gray-700 text-white",
+            hover: "hover:bg-gray-100",
         },
         yellow: {
-            bg: "bg-yellow-50 dark:bg-yellow-900/30",
-            border: "border-yellow-200 dark:border-yellow-800",
-            icon: "text-yellow-600 dark:text-yellow-400",
-            button: "bg-yellow-600 hover:bg-yellow-700 dark:bg-yellow-700 dark:hover:bg-yellow-800 text-white",
-            hover: "hover:bg-yellow-100 dark:hover:bg-yellow-900/50",
+            bg: "bg-yellow-50",
+            border: "border-yellow-200",
+            icon: "text-yellow-600",
+            button: "bg-yellow-600 hover:bg-yellow-700 text-white",
+            hover: "hover:bg-yellow-100",
         },
         red: {
-            bg: "bg-red-50 dark:bg-red-900/30",
-            border: "border-red-200 dark:border-red-800",
-            icon: "text-red-600 dark:text-red-400",
-            button: "bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white",
-            hover: "hover:bg-red-100 dark:hover:bg-red-900/50",
+            bg: "bg-red-50",
+            border: "border-red-200",
+            icon: "text-red-600",
+            button: "bg-red-600 hover:bg-red-700 text-white",
+            hover: "hover:bg-red-100",
         },
     }
 
-    const colors = colorMap[color] || colorMap.blue
+    const colors = colorSchemes[color] || colorSchemes.blue
 
     return (
         <div
-            className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg border ${colors.border} hover:shadow-xl transition-all duration-300 group ${colors.hover}`}
+            className={`bg-white rounded-2xl shadow-lg border ${colors.border} hover:shadow-xl transition-all duration-300 group ${colors.hover}`}
         >
             <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
@@ -166,14 +166,14 @@ const QuickActionCard = ({
                     >
                         <div className={colors.icon}>{iconMap[icon]}</div>
                     </div>
-                    <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full group-hover:bg-gray-400 dark:group-hover:bg-gray-500 transition-colors"></div>
+                    <div className="w-2 h-2 bg-gray-300 rounded-full group-hover:bg-gray-400 transition-colors"></div>
                 </div>
 
                 <div className="space-y-3">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-gray-700 transition-colors">
                         {title}
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                    <p className="text-sm text-gray-600 leading-relaxed">
                         {desc}
                     </p>
 

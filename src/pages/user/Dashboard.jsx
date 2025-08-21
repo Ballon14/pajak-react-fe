@@ -189,23 +189,23 @@ const Dashboard = () => {
             <div className="space-y-8 max-w-6xl mx-auto px-2 md:px-0">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div>
+                    <div>
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
                             Selamat Datang,{" "}
                             <span className="text-blue-700">
                                 {user?.name || "User"}
                             </span>
-                            </h1>
+                        </h1>
                         <p className="text-gray-500 text-sm md:text-base">
                             Kelola data Pajak Bumi dan Bangunan Anda dengan
                             mudah
-                            </p>
-                        </div>
+                        </p>
+                    </div>
                     <div className="flex items-center gap-2">
                         <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-md">
                             <span className="text-white font-bold text-2xl md:text-3xl">
                                 {user?.name?.charAt(0)?.toUpperCase() || "U"}
-                                </span>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -328,21 +328,21 @@ const Dashboard = () => {
                 </div>
 
                 {/* Aktivitas Terbaru */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                                <svg
-                                    className="w-6 h-6 text-blue-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                    />
-                                </svg>
+                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                    <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg
+                            className="w-6 h-6 text-blue-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
+                        </svg>
                         Aktivitas Terbaru
                     </h2>
                     {recentActivities.length > 0 ? (
@@ -388,7 +388,7 @@ const Dashboard = () => {
                                                     )}
                                                 </div>
                                             </div>
-                            </div>
+                                        </div>
                                         <div className="flex items-center gap-2">
                                             <span
                                                 className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
@@ -401,10 +401,10 @@ const Dashboard = () => {
                                                 {new Intl.NumberFormat(
                                                     "id-ID",
                                                     {
-                                        style: "currency",
-                                        currency: "IDR",
-                                        minimumFractionDigits: 0,
-                                        maximumFractionDigits: 0,
+                                                        style: "currency",
+                                                        currency: "IDR",
+                                                        minimumFractionDigits: 0,
+                                                        maximumFractionDigits: 0,
                                                     }
                                                 ).format(activity.amount)}
                                             </span>
@@ -473,8 +473,8 @@ const Dashboard = () => {
                             </p>
                         </div>
                     )}
-                        </div>
-                    </div>
+                </div>
+            </div>
         </Layout>
     )
 }
@@ -506,64 +506,64 @@ function StatCard({
             </svg>
         ),
         paid: (
-                                <svg
-                                    className="w-6 h-6 text-green-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
-                                </svg>
+            <svg
+                className="w-6 h-6 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+            </svg>
         ),
         property: (
-                                <svg
-                                    className="w-6 h-6 text-yellow-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
+            <svg
+                className="w-6 h-6 text-yellow-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
                     d="M3 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10m-7-4V4a2 2 0 114 0v2"
-                                    />
-                                </svg>
+                />
+            </svg>
         ),
         unpaid: (
-                                <svg
-                                    className="w-6 h-6 text-red-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-                                    />
-                                </svg>
+            <svg
+                className="w-6 h-6 text-red-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                />
+            </svg>
         ),
         outstanding: (
             <svg
                 className="w-6 h-6 text-orange-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                                    />
-                                </svg>
+                />
+            </svg>
         ),
     }
     const colorMap = {
@@ -583,7 +583,7 @@ function StatCard({
     }
     return (
         <div
-            className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg p-5 border border-gray-100 dark:border-gray-700 flex flex-col items-start gap-2 ${
+            className={`bg-white rounded-xl shadow-lg p-5 border border-gray-100 flex flex-col items-start gap-2 ${
                 isOutstanding ? "ring-2 ring-orange-400" : ""
             }`}
         >
@@ -591,11 +591,9 @@ function StatCard({
                 className={`w-12 h-12 rounded-lg flex items-center justify-center ${colorMap[color]}`}
             >
                 {iconMap[icon]}
-                            </div>
-            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mt-2">
-                {label}
-            </p>
-            <p className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
+            </div>
+            <p className="text-xs font-medium text-gray-500 mt-2">{label}</p>
+            <p className="text-xl md:text-2xl font-bold text-gray-900">
                 {isNumber
                     ? value
                     : new Intl.NumberFormat("id-ID", {
@@ -614,7 +612,7 @@ function StatCard({
                     {dataCount}
                 </p>
             )}
-                    </div>
+        </div>
     )
 }
 
@@ -624,47 +622,47 @@ function QuickActionCard({ icon, title, desc, color, onClick, buttonLabel }) {
         plus: (
             <svg
                 className="w-6 h-6 text-blue-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
                     d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                                    />
-                                </svg>
+                />
+            </svg>
         ),
         list: (
             <svg
                 className="w-6 h-6 text-green-600"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
                     d="M4 6h16M4 12h16M4 18h7"
-                                    />
-                                </svg>
+                />
+            </svg>
         ),
         report: (
             <svg
                 className="w-6 h-6 text-purple-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
                     d="M9 17v-2a2 2 0 012-2h2a2 2 0 012 2v2m-6 4h6a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                        </svg>
+                />
+            </svg>
         ),
     }
     const colorMap = {
@@ -674,15 +672,15 @@ function QuickActionCard({ icon, title, desc, color, onClick, buttonLabel }) {
     }
     return (
         <div
-            className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 flex flex-col items-start gap-3 hover:shadow-xl transition group`}
+            className={`bg-white rounded-xl shadow-lg p-6 border border-gray-100 flex flex-col items-start gap-3 hover:shadow-xl transition group`}
         >
             <div
                 className={`w-10 h-10 rounded-lg flex items-center justify-center ${colorMap[color]}`}
             >
                 {iconMap[icon]}
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
-            <p className="text-gray-600 dark:text-gray-300 text-sm flex-1">{desc}</p>
+            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+            <p className="text-gray-600 text-sm flex-1">{desc}</p>
             <button
                 onClick={onClick}
                 className={`w-full mt-2 bg-${color}-600 hover:bg-${color}-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200`}

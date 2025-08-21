@@ -27,7 +27,6 @@ import {
 } from "./pages"
 import { authService } from "./services/authService"
 import { ChatWidget } from "./components/ui"
-import { useEffect } from "react"
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -46,42 +45,6 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
 }
 
 function App() {
-    // Initialize theme on app startup
-    useEffect(() => {
-        const initializeTheme = () => {
-            try {
-                // Check for admin settings first
-                const adminSettings = localStorage.getItem("admin_settings")
-                if (adminSettings) {
-                    const parsed = JSON.parse(adminSettings)
-                    if (parsed.theme) {
-                        const root = document.documentElement
-                        if (parsed.theme === "dark") {
-                            root.classList.add("dark")
-                        } else {
-                            root.classList.remove("dark")
-                        }
-                        return
-                    }
-                }
-
-                // Fallback to system preference
-                if (
-                    window.matchMedia &&
-                    window.matchMedia("(prefers-color-scheme: dark)").matches
-                ) {
-                    document.documentElement.classList.add("dark")
-                } else {
-                    document.documentElement.classList.remove("dark")
-                }
-            } catch (error) {
-                console.error("Error initializing theme:", error)
-            }
-        }
-
-        initializeTheme()
-    }, [])
-
     return (
         <Router>
             <div className="App">

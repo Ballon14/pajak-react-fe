@@ -161,7 +161,7 @@ const ChatWidget = () => {
     return (
         <div className="fixed bottom-3 right-3 z-50">
             {isOpen ? (
-                <div className="w-[92vw] max-w-sm sm:max-w-md md:max-w-md bg-white dark:bg-gray-800 shadow-2xl rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col sm:w-80 max-h-[80vh] sm:max-h-[420px] animate-fade-in-up">
+                <div className="w-[92vw] max-w-sm sm:max-w-md md:max-w-md bg-white shadow-2xl rounded-xl border border-gray-200 flex flex-col sm:w-80 max-h-[80vh] sm:max-h-[420px] animate-fade-in-up">
                     {/* Chat Header */}
                     <div className="px-4 py-3 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-xl">
                         <div className="flex items-center justify-between">
@@ -219,8 +219,8 @@ const ChatWidget = () => {
                         style={{ maxHeight: 360 }}
                     >
                         {messages.length === 0 ? (
-                            <div className="text-center text-gray-500 dark:text-gray-400 py-8 animate-fade-in-down">
-                                <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <div className="text-center text-gray-500 py-8 animate-fade-in-down">
+                                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
                                     <svg
                                         className="w-6 h-6 text-gray-400"
                                         fill="none"
@@ -264,7 +264,7 @@ const ChatWidget = () => {
                                             className={`relative max-w-[85%] px-3 py-2 rounded-2xl shadow ${
                                                 mine
                                                     ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white"
-                                                    : "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-800 dark:text-gray-200"
+                                                    : "bg-white border border-gray-200 text-gray-800"
                                             } animate-fade-in-up`}
                                         >
                                             <div>{m.content}</div>
@@ -272,7 +272,7 @@ const ChatWidget = () => {
                                                 className={`mt-1 text-[10px] text-right ${
                                                     mine
                                                         ? "text-blue-100"
-                                                        : "text-gray-500 dark:text-gray-400"
+                                                        : "text-gray-500"
                                                 }`}
                                             >
                                                 {formatTime(m.createdAt)}
@@ -280,7 +280,7 @@ const ChatWidget = () => {
                                             {mine ? (
                                                 <span className="absolute -right-1 bottom-2 w-2 h-2 rotate-45 bg-indigo-600"></span>
                                             ) : (
-                                                <span className="absolute -left-1 bottom-2 w-2 h-2 rotate-45 bg-white dark:bg-gray-700 border-l border-b border-gray-200 dark:border-gray-600"></span>
+                                                <span className="absolute -left-1 bottom-2 w-2 h-2 rotate-45 bg-white border-l border-b border-gray-200"></span>
                                             )}
                                         </div>
                                         {mine && (
@@ -294,7 +294,7 @@ const ChatWidget = () => {
                         {/* Typing Indicator */}
                         {isTyping && (
                             <div className="flex justify-start animate-fade-in-up">
-                                <div className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 py-2 rounded-lg text-sm">
+                                <div className="bg-gray-100 text-gray-800 px-3 py-2 rounded-lg text-sm">
                                     <div className="flex items-center gap-1">
                                         <span>Admin sedang mengetik</span>
                                         <div className="flex gap-1">
@@ -319,13 +319,14 @@ const ChatWidget = () => {
                     </div>
 
                     {/* Message Input */}
-                    <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 rounded-b-xl">
+                    <div className="p-3 border-t border-gray-200 bg-gray-50 rounded-b-xl">
                         <div className="flex gap-2 items-center">
                             <input
+                                type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
-                                placeholder="Tulis pesan..."
-                                className="flex-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus"
+                                placeholder="Ketik pesan..."
+                                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus"
                                 onKeyDown={(e) =>
                                     e.key === "Enter" && sendMessage()
                                 }
@@ -343,7 +344,7 @@ const ChatWidget = () => {
             ) : (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 dark:from-blue-700 dark:to-purple-700 dark:hover:from-blue-800 dark:hover:to-purple-800 text-white rounded-full w-14 h-14 shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center animate-float"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full w-14 h-14 shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center animate-float"
                 >
                     <svg
                         className="w-6 h-6"

@@ -108,27 +108,26 @@ const AddTaxRecord = () => {
                 </div>
 
                 {/* Form */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
                     <form
                         onSubmit={handleSubmit(onSubmit)}
                         className="space-y-6"
                     >
                         {/* Basic Information */}
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                                Informasi Dasar
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                                Informasi Wajib Pajak
                             </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Nama{" "}
-                                        <span className="text-red-500">*</span>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Nama Lengkap
                                     </label>
                                     <input
                                         {...register("name")}
                                         type="text"
                                         placeholder="Masukkan nama lengkap"
-                                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600 ${
+                                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                             errors.name
                                                 ? "border-red-500"
                                                 : "border-gray-300"
@@ -143,8 +142,7 @@ const AddTaxRecord = () => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Alamat{" "}
-                                        <span className="text-red-500">*</span>
+                                        Alamat
                                     </label>
                                     <textarea
                                         {...register("address")}
@@ -165,8 +163,7 @@ const AddTaxRecord = () => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Jenis Pajak{" "}
-                                        <span className="text-red-500">*</span>
+                                        Jenis Pajak
                                     </label>
                                     <input
                                         {...register("tax_type")}
@@ -182,8 +179,7 @@ const AddTaxRecord = () => {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Nomor SPPT{" "}
-                                        <span className="text-red-500">*</span>
+                                        Nomor SPPT
                                     </label>
                                     <input
                                         {...register("spt_number")}

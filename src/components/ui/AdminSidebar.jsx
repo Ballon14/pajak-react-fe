@@ -1,49 +1,10 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { authService } from "../../services/authService"
-import { getChatSocket } from "../../services/chatSocket"
 
 const AdminSidebar = ({ user, isOpen, onClose }) => {
     const navigate = useNavigate()
     const location = useLocation()
-    const [unreadCount, setUnreadCount] = useState(0)
-
-    useEffect(() => {
-        const socket = getChatSocket()
-
-        const handleNewMessage = (msg) => {
-            // Only count messages from users (not from admin)
-            if (msg.sender_id !== user?.id && msg.sender_id !== user?._id) {
-                setUnreadCount((prev) => prev + 1)
-            }
-        }
-
-        socket.on("message:new", handleNewMessage)
-
-        return () => {
-            socket.off("message:new", handleNewMessage)
-        }
-    }, [user])
-
-    const handleLogout = async () => {
-        try {
-            await authService.logout()
-            navigate("/login")
-        } catch (error) {
-            console.error("Logout error:", error)
-        }
-    }
-
-    const handleMenuClick = (href) => {
-        // Reset unread count when entering chat
-        if (href === "/admin/chat") {
-            setUnreadCount(0)
-        }
-        navigate(href)
-        if (window.innerWidth < 1024) {
-            onClose()
-        }
-    }
 
     const menuItems = [
         {
@@ -60,20 +21,14 @@ const AdminSidebar = ({ user, isOpen, onClose }) => {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
-                    />
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"
+                        d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z"
                     />
                 </svg>
             ),
         },
         {
             href: "/admin/users",
-            label: "Users",
+            label: "Kelola Users",
             icon: (
                 <svg
                     className="w-5 h-5"
@@ -92,7 +47,7 @@ const AdminSidebar = ({ user, isOpen, onClose }) => {
         },
         {
             href: "/admin/tax-records",
-            label: "Tax Records",
+            label: "Data Pajak",
             icon: (
                 <svg
                     className="w-5 h-5"
@@ -111,7 +66,7 @@ const AdminSidebar = ({ user, isOpen, onClose }) => {
         },
         {
             href: "/admin/reports",
-            label: "Reports",
+            label: "Laporan",
             icon: (
                 <svg
                     className="w-5 h-5"
@@ -129,27 +84,8 @@ const AdminSidebar = ({ user, isOpen, onClose }) => {
             ),
         },
         {
-            href: "/admin/settings",
-            label: "Settings",
-            icon: (
-                <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M11.983 13.9a1.9 1.9 0 110-3.8 1.9 1.9 0 010 3.8zM19.4 15a7.963 7.963 0 00.1-1 7.963 7.963 0 00-.1-1l2.1-1.6a.5.5 0 00.1-.6l-2-3.5a.5.5 0 00-.6-.2l-2.5 1a7.28 7.28 0 00-1.7-1l-.4-2.7a.5.5 0 00-.5-.4h-4a.5.5 0 00-.5.4l-.4 2.7a7.28 7.28 0 00-1.7 1l-2.5-1a.5.5 0 00-.6.2l-2 3.5a.5.5 0 00.1.6L4.6 13a7.963 7.963 0 00-.1 1 7.963 7.963 0 00.1 1l-2.1 1.6a.5.5 0 00-.1.6l2 3.5a.5.5 0 00.6.2l2.5-1a7.28 7.28 0 001.7 1l.4 2.7a.5.5 0 00.5.4h4a.5.5 0 00.5-.4l.4-2.7a7.28 7.28 0 001.7-1l2.5 1a.5.5 0 00.6-.2l2-3.5a.5.5 0 00-.1-.6L19.4 15z"
-                    />
-                </svg>
-            ),
-        },
-        {
             href: "/admin/chat",
-            label: "Live Chat",
+            label: "Chat",
             icon: (
                 <svg
                     className="w-5 h-5"
@@ -165,15 +101,48 @@ const AdminSidebar = ({ user, isOpen, onClose }) => {
                     />
                 </svg>
             ),
-            badge: unreadCount > 0 ? unreadCount : null,
+        },
+        {
+            href: "/admin/settings",
+            label: "Pengaturan",
+            icon: (
+                <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                    />
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                </svg>
+            ),
         },
     ]
 
-    // Satu fungsi konten sidebar
+    const handleLogout = () => {
+        authService.logout()
+        navigate("/login")
+    }
+
+    const handleMenuClick = (href) => {
+        navigate(href)
+        if (onClose) onClose()
+    }
+
     const sidebarContent = (
-        <>
+        <div className="flex flex-col h-full">
             {/* Sidebar Header */}
-            <div className="flex items-center justify-between h-16 px-6 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
+            <div className="flex items-center justify-between h-16 px-6 bg-gradient-to-r from-blue-600 to-purple-600">
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                         <svg
@@ -186,23 +155,25 @@ const AdminSidebar = ({ user, isOpen, onClose }) => {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                             />
                         </svg>
                     </div>
                     <div>
-                        <h1 className="text-xl font-bold text-white">
+                        <h1 className="text-lg font-bold text-white">
                             PajakApp
                         </h1>
-                        <p className="text-xs text-indigo-100">Admin Panel</p>
+                        <p className="text-xs text-blue-100">Admin Panel</p>
                     </div>
                 </div>
+
+                {/* Close button for mobile */}
                 <button
                     onClick={onClose}
-                    className="lg:hidden p-1 text-white/80 hover:text-white rounded-lg transition-colors"
+                    className="lg:hidden p-1 rounded text-white/80 hover:text-white hover:bg-white/10"
                 >
                     <svg
-                        className="w-6 h-6"
+                        className="w-5 h-5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -218,7 +189,7 @@ const AdminSidebar = ({ user, isOpen, onClose }) => {
             </div>
 
             {/* Navigation Menu */}
-            <nav className="flex-1 px-4 py-6 space-y-2">
+            <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
                 {menuItems.map((item) => {
                     const isActive = location.pathname === item.href
                     return (
@@ -227,8 +198,8 @@ const AdminSidebar = ({ user, isOpen, onClose }) => {
                             onClick={() => handleMenuClick(item.href)}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                                 isActive
-                                    ? "bg-blue-50 text-blue-700 border border-blue-200 shadow-sm dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800"
-                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
+                                    ? "bg-blue-50 text-blue-700 border border-blue-200 shadow-sm"
+                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                             }`}
                         >
                             <div
@@ -239,12 +210,7 @@ const AdminSidebar = ({ user, isOpen, onClose }) => {
                                 {item.icon}
                             </div>
                             <span>{item.label}</span>
-                            {item.badge && (
-                                <div className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                    {item.badge > 9 ? "9+" : item.badge}
-                                </div>
-                            )}
-                            {isActive && !item.badge && (
+                            {isActive && (
                                 <div className="w-2 h-2 bg-blue-600 rounded-full ml-auto"></div>
                             )}
                         </button>
@@ -253,16 +219,16 @@ const AdminSidebar = ({ user, isOpen, onClose }) => {
             </nav>
 
             {/* User Profile Section */}
-            <div className="border-t border-gray-200 dark:border-gray-700 p-4">
-                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl">
-                    <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
+            <div className="border-t border-gray-200 p-4">
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
                         <span className="text-white font-bold text-sm">
                             {user?.name?.charAt(0)?.toUpperCase() || "A"}
                         </span>
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">
-                            {user?.name}
+                            {user?.name || "Admin"}
                         </p>
                         <p className="text-xs text-gray-500 truncate">
                             Administrator
@@ -289,7 +255,7 @@ const AdminSidebar = ({ user, isOpen, onClose }) => {
                     </button>
                 </div>
             </div>
-        </>
+        </div>
     )
 
     return (
@@ -304,7 +270,7 @@ const AdminSidebar = ({ user, isOpen, onClose }) => {
 
             {/* Sidebar Mobile */}
             <div
-                className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-900 shadow-xl transform transition-transform duration-300 ease-in-out lg:hidden ${
+                className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out lg:hidden ${
                     isOpen ? "translate-x-0" : "-translate-x-full"
                 }`}
             >
@@ -312,7 +278,7 @@ const AdminSidebar = ({ user, isOpen, onClose }) => {
             </div>
 
             {/* Sidebar Desktop */}
-            <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:w-64 lg:bg-white dark:lg:bg-gray-900 lg:shadow-xl lg:block">
+            <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:w-64 lg:bg-white lg:shadow-xl lg:block">
                 {sidebarContent}
             </div>
         </>

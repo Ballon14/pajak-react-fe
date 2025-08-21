@@ -21,7 +21,7 @@ const Toast = ({
 
     const getToastStyles = () => {
         const baseStyles =
-            "fixed top-4 right-4 z-50 max-w-sm w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border-l-4 p-4 transform transition-all duration-300"
+            "fixed top-4 right-4 z-50 max-w-sm w-full bg-white rounded-lg shadow-lg border-l-4 p-4 transform transition-all duration-300"
 
         switch (type) {
             case "success":
@@ -106,17 +106,17 @@ const Toast = ({
         }
     }
 
-    const getMessageColor = () => {
+    const getTextColor = () => {
         switch (type) {
             case "success":
-                return "text-green-800 dark:text-green-200"
+                return "text-green-800"
             case "error":
-                return "text-red-800 dark:text-red-200"
+                return "text-red-800"
             case "warning":
-                return "text-yellow-800 dark:text-yellow-200"
+                return "text-yellow-800"
             case "info":
             default:
-                return "text-blue-800 dark:text-blue-200"
+                return "text-blue-800"
         }
     }
 
@@ -124,26 +124,24 @@ const Toast = ({
 
     return (
         <div
-            className={`${getToastStyles()} ${
+            className={`fixed top-4 right-4 z-50 max-w-sm w-full bg-white rounded-lg shadow-lg border-l-4 p-4 transform transition-all duration-300 ${
                 isVisible
                     ? "translate-x-0 opacity-100"
                     : "translate-x-full opacity-0"
-            }`}
+            } ${getToastStyles()} ${getTextColor()}`}
         >
             <div className="flex items-start">
                 <div className="flex-shrink-0">{getIcon()}</div>
                 <div className="ml-3 flex-1">
-                    <p className={`text-sm font-medium ${getMessageColor()}`}>
+                    <p className={`text-sm font-medium ${getTextColor()}`}>
                         {message}
                     </p>
                 </div>
                 <div className="ml-4 flex-shrink-0">
                     <button
-                        onClick={() => {
-                            setIsVisible(false)
-                            setTimeout(() => onClose?.(), 300)
-                        }}
-                        className="inline-flex text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:text-gray-600 dark:focus:text-gray-300 transition-colors duration-200"
+                        onClick={onClose}
+                        className="inline-flex text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors duration-200"
+                        aria-label="Close"
                     >
                         <svg
                             className="w-4 h-4"

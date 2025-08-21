@@ -221,14 +221,14 @@ const Reports = () => {
                 </div>
 
                 {/* Report Type Selector */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
                     <div className="flex space-x-4">
                         <button
                             onClick={() => setSelectedReport("summary")}
                             className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
                                 selectedReport === "summary"
                                     ? "bg-blue-600 text-white"
-                                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                             }`}
                         >
                             Ringkasan
@@ -238,7 +238,7 @@ const Reports = () => {
                             className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
                                 selectedReport === "tax_type"
                                     ? "bg-blue-600 text-white"
-                                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                             }`}
                         >
                             Jenis Properti
@@ -251,11 +251,11 @@ const Reports = () => {
                     <div className="space-y-6">
                         {/* Summary Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
                                 <div className="flex items-center">
-                                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                                         <svg
-                                            className="w-6 h-6 text-blue-600 dark:text-blue-400"
+                                            className="w-6 h-6 text-blue-600"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -269,10 +269,11 @@ const Reports = () => {
                                         </svg>
                                     </div>
                                     <div className="ml-4">
-                                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                            Total PBB
+                                        <p className="text-sm font-medium text-gray-500">
+                                            Total Pajak
                                         </p>
-                                        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                        <p className="text-2xl font-bold text-gray-900">
+                                            Rp{" "}
                                             {formatCurrency(
                                                 reportData.summary.totalTax
                                             )}
@@ -281,11 +282,11 @@ const Reports = () => {
                                 </div>
                             </div>
 
-                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
                                 <div className="flex items-center">
-                                    <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                                         <svg
-                                            className="w-6 h-6 text-green-600 dark:text-green-400"
+                                            className="w-6 h-6 text-green-600"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -299,10 +300,11 @@ const Reports = () => {
                                         </svg>
                                     </div>
                                     <div className="ml-4">
-                                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                            Sudah Dibayar
+                                        <p className="text-sm font-medium text-gray-500">
+                                            Pajak Terbayar
                                         </p>
-                                        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                        <p className="text-2xl font-bold text-gray-900">
+                                            Rp{" "}
                                             {formatCurrency(
                                                 reportData.summary.paidTax
                                             )}
@@ -311,11 +313,11 @@ const Reports = () => {
                                 </div>
                             </div>
 
-                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
                                 <div className="flex items-center">
-                                    <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+                                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
                                         <svg
-                                            className="w-6 h-6 text-red-600 dark:text-red-400"
+                                            className="w-6 h-6 text-red-600"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -324,15 +326,16 @@ const Reports = () => {
                                                 strokeLinecap="round"
                                                 strokeLinejoin="round"
                                                 strokeWidth={2}
-                                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                             />
                                         </svg>
                                     </div>
                                     <div className="ml-4">
-                                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                            Belum Dibayar
+                                        <p className="text-sm font-medium text-gray-500">
+                                            Belum Bayar
                                         </p>
-                                        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                        <p className="text-2xl font-bold text-gray-900">
+                                            Rp{" "}
                                             {formatCurrency(
                                                 reportData.summary.unpaidTax
                                             )}
@@ -341,11 +344,11 @@ const Reports = () => {
                                 </div>
                             </div>
 
-                            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                            <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
                                 <div className="flex items-center">
-                                    <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                                         <svg
-                                            className="w-6 h-6 text-purple-600 dark:text-purple-400"
+                                            className="w-6 h-6 text-purple-600"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -354,15 +357,15 @@ const Reports = () => {
                                                 strokeLinecap="round"
                                                 strokeLinejoin="round"
                                                 strokeWidth={2}
-                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                d="M9 17v-2a2 2 0 012-2h2a2 2 0 012 2v2m-6 4h6a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z"
                                             />
                                         </svg>
                                     </div>
                                     <div className="ml-4">
-                                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                                            Total Properti
+                                        <p className="text-sm font-medium text-gray-500">
+                                            Total Catatan
                                         </p>
-                                        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                        <p className="text-2xl font-bold text-gray-900">
                                             {reportData.summary.totalRecords}
                                         </p>
                                     </div>
@@ -371,13 +374,13 @@ const Reports = () => {
                         </div>
 
                         {/* Progress Chart */}
-                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">
                                 Progress Pembayaran
                             </h3>
                             <div className="space-y-4">
                                 <div>
-                                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                    <div className="flex justify-between text-sm text-gray-600 mb-2">
                                         <span>Progress Pembayaran</span>
                                         <span>
                                             {Math.round(
@@ -389,7 +392,7 @@ const Reports = () => {
                                             %
                                         </span>
                                     </div>
-                                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                                    <div className="w-full bg-gray-200 rounded-full h-3">
                                         <div
                                             className="bg-gradient-to-r from-blue-600 to-green-600 h-3 rounded-full transition-all duration-500"
                                             style={{
@@ -428,8 +431,8 @@ const Reports = () => {
                 )}
 
                 {selectedReport === "tax_type" && (
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+                    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-6">
                             Laporan Berdasarkan Jenis Properti
                         </h3>
                         {reportData && reportData.propertyData ? (
@@ -440,7 +443,7 @@ const Reports = () => {
                                             (item, index) => (
                                                 <div
                                                     key={index}
-                                                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                                                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
                                                 >
                                                     <div className="flex items-center">
                                                         <div
