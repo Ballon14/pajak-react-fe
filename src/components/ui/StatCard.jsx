@@ -13,7 +13,7 @@ const StatCard = ({
     const iconMap = {
         users: (
             <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -28,7 +28,7 @@ const StatCard = ({
         ),
         tax: (
             <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -43,7 +43,7 @@ const StatCard = ({
         ),
         paid: (
             <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -58,7 +58,7 @@ const StatCard = ({
         ),
         unpaid: (
             <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -73,7 +73,7 @@ const StatCard = ({
         ),
         money: (
             <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -88,7 +88,7 @@ const StatCard = ({
         ),
         chart: (
             <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -166,12 +166,14 @@ const StatCard = ({
         <div
             className={`bg-white rounded-2xl shadow-lg border ${colors.border} hover:shadow-xl transition-all duration-300 group`}
         >
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
                 <div className="flex items-center justify-between mb-4">
                     <div
-                        className={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}
+                        className={`w-10 h-10 sm:w-12 sm:h-12 ${colors.bg} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}
                     >
-                        <div className={colors.icon}>{iconMap[icon]}</div>
+                        <div className={`${colors.icon} scale-90 sm:scale-100`}>
+                            {iconMap[icon]}
+                        </div>
                     </div>
                     {trend && (
                         <div
@@ -198,10 +200,10 @@ const StatCard = ({
                 </div>
 
                 <div className="space-y-2">
-                    <div className="text-3xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors">
+                    <div className="text-2xl sm:text-3xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors">
                         {formatValue(value)}
                     </div>
-                    <div className="text-sm font-medium text-gray-600">
+                    <div className="text-xs sm:text-sm font-medium text-gray-600">
                         {label}
                     </div>
                     {subtitle && (

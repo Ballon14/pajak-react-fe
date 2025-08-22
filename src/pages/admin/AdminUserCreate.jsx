@@ -52,27 +52,30 @@ const AdminUserCreate = () => {
 
     return (
         <AdminLayout>
-            <div className="p-6 space-y-6">
-                <div className="flex items-center justify-between">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                             Tambah User
                         </h1>
-                        <p className="text-gray-600">
+                        <p className="text-sm sm:text-base text-gray-600">
                             Buat user baru dan atur rolenya
                         </p>
                     </div>
                     <button
                         onClick={() => navigate("/admin/users")}
-                        className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
+                        className="bg-gray-600 hover:bg-gray-700 text-white px-3 sm:px-4 py-2 rounded-lg text-sm sm:text-base"
                     >
                         Batal
                     </button>
                 </div>
 
-                <div className="bg-white rounded-2xl shadow-lg p-6">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
+                    <form
+                        onSubmit={handleSubmit}
+                        className="space-y-4 sm:space-y-6"
+                    >
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                             <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Nama
@@ -81,7 +84,7 @@ const AdminUserCreate = () => {
                                     name="name"
                                     value={form.name}
                                     onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base"
                                 />
                             </div>
                             <div>
@@ -93,7 +96,7 @@ const AdminUserCreate = () => {
                                     name="email"
                                     value={form.email}
                                     onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base"
                                 />
                             </div>
                             <div>
@@ -108,14 +111,14 @@ const AdminUserCreate = () => {
                                         name="password"
                                         value={form.password}
                                         onChange={handleChange}
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-12"
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-12 text-sm sm:text-base"
                                     />
                                     <button
                                         type="button"
                                         onClick={() =>
                                             setShowPassword((v) => !v)
                                         }
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 hover:text-gray-700"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-xs sm:text-sm text-gray-500 hover:text-gray-700"
                                         aria-label={
                                             showPassword
                                                 ? "Sembunyikan password"
@@ -126,7 +129,7 @@ const AdminUserCreate = () => {
                                     </button>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
                                 <label className="inline-flex items-center">
                                     <input
                                         type="checkbox"
@@ -154,18 +157,18 @@ const AdminUserCreate = () => {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-4 border-t">
+                        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t">
                             <button
                                 type="button"
                                 onClick={() => navigate("/admin/users")}
-                                className="px-6 py-2 border rounded-lg"
+                                className="px-4 sm:px-6 py-2 border rounded-lg text-sm sm:text-base"
                             >
                                 Batal
                             </button>
                             <button
                                 type="submit"
                                 disabled={saving}
-                                className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
+                                className="px-4 sm:px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm sm:text-base"
                             >
                                 {saving ? "Menyimpan..." : "Simpan"}
                             </button>

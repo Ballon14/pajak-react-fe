@@ -26,6 +26,7 @@ const AdminDashboard = () => {
         unpaid_tax: 0,
     })
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
     const [selectedPeriod, setSelectedPeriod] = useState("month")
     const [confirmOpen, setConfirmOpen] = useState(false)
     const [deletingUserId, setDeletingUserId] = useState(null)
@@ -56,43 +57,41 @@ const AdminDashboard = () => {
 
             if (statsResponse.success) {
                 setStats(statsResponse.data)
+                setError(null) // Clear any previous errors
             } else {
+                // Fallback calculation if stats endpoint fails
+                const usersData = usersResponse.success
+                    ? usersResponse.data.data || []
+                    : []
+                const taxData = taxResponse.success
+                    ? taxResponse.data.data || []
+                    : []
+
+                const totalTax = taxData.reduce(
+                    (sum, r) => sum + (r.amount || r.total || 0),
+                    0
+                )
+                const paidTax = taxData
+                    .filter((r) => r.status === "lunas")
+                    .reduce((sum, r) => sum + (r.amount || r.total || 0), 0)
+                const unpaidTax = totalTax - paidTax
+
                 setStats({
-                    total_users: usersResponse.success
-                        ? usersResponse.data.data?.length || 0
-                        : 0,
-                    active_users: usersResponse.success
-                        ? usersResponse.data.data?.filter((u) => u.is_active)
-                              ?.length || 0
-                        : 0,
-                    total_records: taxResponse.success
-                        ? taxResponse.data.data?.length || 0
-                        : 0,
-                    lunas: taxResponse.success
-                        ? taxResponse.data.data?.filter(
-                              (r) => r.status === "lunas"
-                          )?.length || 0
-                        : 0,
-                    belum_lunas: taxResponse.success
-                        ? taxResponse.data.data?.filter(
-                              (r) => r.status === "belum_lunas"
-                          )?.length || 0
-                        : 0,
-                    total_tax: taxResponse.success
-                        ? taxResponse.data.data?.reduce(
-                              (sum, r) => sum + (r.total || 0),
-                              0
-                          ) || 0
-                        : 0,
-                    paid_tax: taxResponse.success
-                        ? taxResponse.data.data
-                              ?.filter((r) => r.status === "lunas")
-                              ?.reduce((sum, r) => sum + (r.total || 0), 0) || 0
-                        : 0,
-                    unpaid_tax: 0,
+                    total_users: usersData.length,
+                    active_users: usersData.filter((u) => u.is_active).length,
+                    total_records: taxData.length,
+                    lunas: taxData.filter((r) => r.status === "lunas").length,
+                    belum_lunas: taxData.filter(
+                        (r) => r.status === "belum_lunas"
+                    ).length,
+                    total_tax: totalTax,
+                    paid_tax: paidTax,
+                    unpaid_tax: unpaidTax,
                 })
             }
-        } catch {
+        } catch (error) {
+            console.error("Error loading dashboard data:", error)
+            setError("Gagal memuat data dashboard. Silakan coba lagi.")
             setStats({
                 total_users: 0,
                 active_users: 0,
@@ -108,12 +107,14 @@ const AdminDashboard = () => {
         }
     }
 
-    const formatCurrency = (amount) =>
-        new Intl.NumberFormat("id-ID", {
+    const formatCurrency = (amount) => {
+        if (!amount || isNaN(amount)) return "Rp 0"
+        return new Intl.NumberFormat("id-ID", {
             style: "currency",
             currency: "IDR",
             minimumFractionDigits: 0,
         }).format(amount)
+    }
 
     const usersColumns = {
         avatar: (user) => (
@@ -130,16 +131,16 @@ const AdminDashboard = () => {
             color: user.is_active ? "green" : "red",
         }),
         amount: null,
-        actions: (row) => [
+        actions: () => [
             {
                 label: "Edit",
-                onClick: () =>
-                    navigate(`/admin/users?edit=${row.id || row._id}`),
+                onClick: (item) =>
+                    navigate(`/admin/users?edit=${item.id || item._id}`),
                 color: "blue",
             },
             {
                 label: "Delete",
-                onClick: () => askDeleteUser(row.id || row._id),
+                onClick: (item) => askDeleteUser(item.id || item._id),
                 color: "red",
             },
         ],
@@ -159,16 +160,18 @@ const AdminDashboard = () => {
             text: record.status === "lunas" ? "Lunas" : "Belum Lunas",
             color: record.status === "lunas" ? "green" : "red",
         }),
-        amount: (record) => formatCurrency(record.total || 0),
-        actions: (record) => [
+        amount: (record) => formatCurrency(record.amount || record.total || 0),
+        actions: () => [
             {
                 label: "View",
-                onClick: () => navigate(`/admin/tax-records/${record.id}`),
+                onClick: (item) =>
+                    navigate(`/admin/tax-records/${item.id || item._id}`),
                 color: "blue",
             },
             {
                 label: "Edit",
-                onClick: () => navigate(`/admin/tax-records/${record.id}/edit`),
+                onClick: (item) =>
+                    navigate(`/admin/tax-records/${item.id || item._id}/edit`),
                 color: "yellow",
             },
         ],
@@ -181,8 +184,10 @@ const AdminDashboard = () => {
 
     const confirmDeleteUser = async () => {
         try {
-            console.log("Deleting user:", deletingUserId)
-            await loadData()
+            if (deletingUserId) {
+                await userService.deleteUser(deletingUserId)
+                await loadData() // Reload data after deletion
+            }
         } catch (error) {
             console.error("Error deleting user:", error)
         } finally {
@@ -205,14 +210,96 @@ const AdminDashboard = () => {
                 </div>
             ) : (
                 <div className="space-y-6">
+                    {/* Error Message */}
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div className="flex">
+                                <div className="flex-shrink-0">
+                                    <svg
+                                        className="h-5 w-5 text-red-400"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                </div>
+                                <div className="ml-3">
+                                    <p className="text-sm text-red-800">
+                                        {error}
+                                    </p>
+                                </div>
+                                <div className="ml-auto pl-3">
+                                    <div className="-mx-1.5 -my-1.5">
+                                        <button
+                                            onClick={() => setError(null)}
+                                            className="inline-flex rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 focus:ring-offset-red-50"
+                                        >
+                                            <span className="sr-only">
+                                                Dismiss
+                                            </span>
+                                            <svg
+                                                className="h-5 w-5"
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
+                                            >
+                                                <path
+                                                    fillRule="evenodd"
+                                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Welcome Banner */}
-                    <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-2xl p-6 lg:p-8 text-white shadow-lg">
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                    <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-2xl p-4 sm:p-6 lg:p-8 text-white shadow-lg">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-6">
                             <div className="flex-1">
-                                <div className="flex items-center gap-3 mb-4">
-                                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                                            <svg
+                                                className="w-5 h-5 sm:w-6 sm:h-6"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">
+                                                Selamat Datang,{" "}
+                                                {user?.name || "Admin"}! 👋
+                                            </h1>
+                                            <p className="text-blue-100 text-xs sm:text-sm lg:text-base">
+                                                Kelola sistem pajak dengan mudah
+                                                dan efisien
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={loadData}
+                                        disabled={loading}
+                                        className="bg-white/20 hover:bg-white/30 text-white px-3 sm:px-4 py-2 rounded-lg transition-colors duration-200 flex items-center gap-2 text-sm sm:text-base"
+                                    >
                                         <svg
-                                            className="w-6 h-6"
+                                            className={`w-4 h-4 ${
+                                                loading ? "animate-spin" : ""
+                                            }`}
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -221,50 +308,43 @@ const AdminDashboard = () => {
                                                 strokeLinecap="round"
                                                 strokeLinejoin="round"
                                                 strokeWidth={2}
-                                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                                             />
                                         </svg>
-                                    </div>
-                                    <div>
-                                        <h1 className="text-2xl lg:text-3xl font-bold">
-                                            Selamat Datang,{" "}
-                                            {user?.name || "Admin"}! 👋
-                                        </h1>
-                                        <p className="text-blue-100 text-sm lg:text-base">
-                                            Kelola sistem pajak dengan mudah dan
-                                            efisien
-                                        </p>
-                                    </div>
+                                        <span className="hidden sm:inline">
+                                            Refresh
+                                        </span>
+                                    </button>
                                 </div>
 
                                 {/* Quick Stats in Banner */}
-                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
-                                    <div className="bg-white/10 rounded-lg p-3 backdrop-blur-sm">
-                                        <div className="text-xl font-bold">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+                                    <div className="bg-white/10 rounded-lg p-2 sm:p-3 backdrop-blur-sm">
+                                        <div className="text-lg sm:text-xl font-bold">
                                             {stats.total_users || 0}
                                         </div>
                                         <div className="text-blue-100 text-xs">
                                             Total Users
                                         </div>
                                     </div>
-                                    <div className="bg-white/10 rounded-lg p-3 backdrop-blur-sm">
-                                        <div className="text-xl font-bold">
+                                    <div className="bg-white/10 rounded-lg p-2 sm:p-3 backdrop-blur-sm">
+                                        <div className="text-lg sm:text-xl font-bold">
                                             {stats.total_records || 0}
                                         </div>
                                         <div className="text-blue-100 text-xs">
                                             Total Records
                                         </div>
                                     </div>
-                                    <div className="bg-white/10 rounded-lg p-3 backdrop-blur-sm">
-                                        <div className="text-xl font-bold">
+                                    <div className="bg-white/10 rounded-lg p-2 sm:p-3 backdrop-blur-sm">
+                                        <div className="text-lg sm:text-xl font-bold">
                                             {stats.lunas || 0}
                                         </div>
                                         <div className="text-blue-100 text-xs">
                                             Lunas
                                         </div>
                                     </div>
-                                    <div className="bg-white/10 rounded-lg p-3 backdrop-blur-sm">
-                                        <div className="text-xl font-bold">
+                                    <div className="bg-white/10 rounded-lg p-2 sm:p-3 backdrop-blur-sm">
+                                        <div className="text-lg sm:text-xl font-bold">
                                             {stats.belum_lunas || 0}
                                         </div>
                                         <div className="text-blue-100 text-xs">
@@ -277,7 +357,7 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Statistics Cards */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                         <StatCard
                             icon="users"
                             label="Total Users"
@@ -301,7 +381,7 @@ const AdminDashboard = () => {
                         <StatCard
                             icon="paid"
                             label="Pajak Lunas"
-                            value={formatCurrency(stats.paid_tax || 0)}
+                            value={stats.paid_tax || 0}
                             color="green"
                             trend={stats.paid_tax > 0 ? "+15%" : "0%"}
                             trendUp={stats.paid_tax > 0}
@@ -310,7 +390,7 @@ const AdminDashboard = () => {
                         <StatCard
                             icon="unpaid"
                             label="Belum Lunas"
-                            value={formatCurrency(stats.unpaid_tax || 0)}
+                            value={stats.unpaid_tax || 0}
                             color="red"
                             trend={stats.unpaid_tax > 0 ? "-5%" : "0%"}
                             trendUp={false}
@@ -319,9 +399,9 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Financial Overview */}
-                    <div className="bg-white rounded-2xl shadow-lg p-6">
+                    <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                            <h3 className="text-xl font-bold text-gray-900">
+                            <h3 className="text-lg sm:text-xl font-bold text-gray-900">
                                 Ringkasan Keuangan
                             </h3>
                             <select
@@ -338,12 +418,12 @@ const AdminDashboard = () => {
                             </select>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 sm:p-6 border border-green-200">
                                 <div className="flex items-center justify-between mb-4">
-                                    <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-xl flex items-center justify-center">
                                         <svg
-                                            className="w-6 h-6 text-white"
+                                            className="w-5 h-5 sm:w-6 sm:h-6 text-white"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -356,23 +436,23 @@ const AdminDashboard = () => {
                                             />
                                         </svg>
                                     </div>
-                                    <div className="text-green-600 text-sm font-medium">
+                                    <div className="text-green-600 text-xs sm:text-sm font-medium">
                                         {stats.total_tax > 0 ? "+15.3%" : "0%"}
                                     </div>
                                 </div>
-                                <div className="text-2xl font-bold text-gray-900 mb-1">
-                                    Rp {formatCurrency(stats.total_tax || 0)}
+                                <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+                                    {formatCurrency(stats.total_tax || 0)}
                                 </div>
-                                <div className="text-gray-600 text-sm">
+                                <div className="text-gray-600 text-xs sm:text-sm">
                                     Total Pajak
                                 </div>
                             </div>
 
-                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 sm:p-6 border border-blue-200">
                                 <div className="flex items-center justify-between mb-4">
-                                    <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-xl flex items-center justify-center">
                                         <svg
-                                            className="w-6 h-6 text-white"
+                                            className="w-5 h-5 sm:w-6 sm:h-6 text-white"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -385,23 +465,23 @@ const AdminDashboard = () => {
                                             />
                                         </svg>
                                     </div>
-                                    <div className="text-blue-600 text-sm font-medium">
+                                    <div className="text-blue-600 text-xs sm:text-sm font-medium">
                                         {stats.paid_tax > 0 ? "+8.7%" : "0%"}
                                     </div>
                                 </div>
-                                <div className="text-2xl font-bold text-gray-900 mb-1">
-                                    Rp {formatCurrency(stats.paid_tax || 0)}
+                                <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+                                    {formatCurrency(stats.paid_tax || 0)}
                                 </div>
-                                <div className="text-gray-600 text-sm">
+                                <div className="text-gray-600 text-xs sm:text-sm">
                                     Pajak Terbayar
                                 </div>
                             </div>
 
-                            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border border-orange-200">
+                            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 sm:p-6 border border-orange-200">
                                 <div className="flex items-center justify-between mb-4">
-                                    <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center">
+                                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500 rounded-xl flex items-center justify-center">
                                         <svg
-                                            className="w-6 h-6 text-white"
+                                            className="w-5 h-5 sm:w-6 sm:h-6 text-white"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
@@ -414,14 +494,14 @@ const AdminDashboard = () => {
                                             />
                                         </svg>
                                     </div>
-                                    <div className="text-orange-600 text-sm font-medium">
+                                    <div className="text-orange-600 text-xs sm:text-sm font-medium">
                                         {stats.unpaid_tax > 0 ? "-2.1%" : "0%"}
                                     </div>
                                 </div>
-                                <div className="text-2xl font-bold text-gray-900 mb-1">
-                                    Rp {formatCurrency(stats.unpaid_tax || 0)}
+                                <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-1">
+                                    {formatCurrency(stats.unpaid_tax || 0)}
                                 </div>
-                                <div className="text-gray-600 text-sm">
+                                <div className="text-gray-600 text-xs sm:text-sm">
                                     Belum Terbayar
                                 </div>
                             </div>
@@ -429,7 +509,7 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Quick Actions */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                         <QuickActionCard
                             icon="users"
                             title="Kelola Users"
@@ -465,7 +545,7 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* Recent Data Tables */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                         <DataTable
                             title="Users Terbaru"
                             icon="users"
@@ -473,9 +553,10 @@ const AdminDashboard = () => {
                             columns={usersColumns}
                             emptyMessage="Belum ada users terdaftar"
                             emptyIcon="users"
-                            maxItems={5}
+                            maxItems={6}
                             totalCount={users.length}
                             onViewAll={() => navigate("/admin/users")}
+                            viewMode="card"
                         />
 
                         <DataTable
@@ -485,9 +566,10 @@ const AdminDashboard = () => {
                             columns={taxRecordsColumns}
                             emptyMessage="Belum ada data pajak"
                             emptyIcon="tax"
-                            maxItems={5}
+                            maxItems={6}
                             totalCount={taxRecords.length}
                             onViewAll={() => navigate("/admin/tax-records")}
+                            viewMode="card"
                         />
                     </div>
                 </div>

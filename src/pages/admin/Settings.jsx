@@ -86,27 +86,27 @@ const AdminSettings = () => {
 
     return (
         <AdminLayout>
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
                 {/* Page Header */}
-                <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                <div className="mb-6 sm:mb-8">
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                         Pengaturan Admin
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-sm sm:text-base text-gray-600">
                         Kelola pengaturan aplikasi sesuai preferensi Anda
                     </p>
                 </div>
 
                 {/* Settings Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                     {/* Notifikasi */}
-                    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">
+                    <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border border-gray-100">
+                        <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
                             Pengaturan Notifikasi
                         </h2>
-                        <div className="space-y-6">
+                        <div className="space-y-4 sm:space-y-6">
                             <div className="flex items-center justify-between">
-                                <div>
+                                <div className="flex-1 mr-4">
                                     <label className="text-sm font-medium text-gray-700">
                                         Notifikasi dalam aplikasi
                                     </label>
@@ -114,7 +114,7 @@ const AdminSettings = () => {
                                         Tampilkan notifikasi di dalam aplikasi
                                     </p>
                                 </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
+                                <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                                     <input
                                         type="checkbox"
                                         name="notifications"
@@ -127,7 +127,7 @@ const AdminSettings = () => {
                             </div>
 
                             <div className="flex items-center justify-between">
-                                <div>
+                                <div className="flex-1 mr-4">
                                     <label className="text-sm font-medium text-gray-700">
                                         Notifikasi desktop
                                     </label>
@@ -135,7 +135,7 @@ const AdminSettings = () => {
                                         Tampilkan notifikasi di desktop
                                     </p>
                                 </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
+                                <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                                     <input
                                         type="checkbox"
                                         name="desktopNotifications"
@@ -148,7 +148,7 @@ const AdminSettings = () => {
                             </div>
 
                             <div className="flex items-center justify-between">
-                                <div>
+                                <div className="flex-1 mr-4">
                                     <label className="text-sm font-medium text-gray-700">
                                         Suara chat
                                     </label>
@@ -156,7 +156,7 @@ const AdminSettings = () => {
                                         Putar suara saat ada pesan chat baru
                                     </p>
                                 </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
+                                <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
                                     <input
                                         type="checkbox"
                                         name="chatSound"
@@ -171,11 +171,11 @@ const AdminSettings = () => {
                     </div>
 
                     {/* System Information */}
-                    <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                        <h2 className="text-lg font-semibold text-gray-900 mb-6">
+                    <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border border-gray-100">
+                        <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 sm:mb-6">
                             Informasi Sistem
                         </h2>
-                        <div className="space-y-4">
+                        <div className="space-y-3 sm:space-y-4">
                             <div className="flex justify-between items-center py-3 border-b border-gray-100">
                                 <span className="text-sm font-medium text-gray-700">
                                     Versi Aplikasi
@@ -206,10 +206,10 @@ const AdminSettings = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <button
                         onClick={handleSave}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 sm:px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 text-sm sm:text-base"
                     >
                         <svg
                             className="w-4 h-4"
@@ -224,11 +224,14 @@ const AdminSettings = () => {
                                 d="M5 13l4 4L19 7"
                             />
                         </svg>
-                        Simpan Pengaturan
+                        <span className="hidden sm:inline">
+                            Simpan Pengaturan
+                        </span>
+                        <span className="sm:hidden">Simpan</span>
                     </button>
                     <button
                         onClick={askReset}
-                        className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+                        className="bg-gray-500 hover:bg-gray-600 text-white px-4 sm:px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 text-sm sm:text-base"
                     >
                         <svg
                             className="w-4 h-4"
@@ -243,7 +246,10 @@ const AdminSettings = () => {
                                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                             />
                         </svg>
-                        Reset ke Default
+                        <span className="hidden sm:inline">
+                            Reset ke Default
+                        </span>
+                        <span className="sm:hidden">Reset</span>
                     </button>
                 </div>
             </div>

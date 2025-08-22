@@ -185,25 +185,22 @@ const Dashboard = () => {
     }
 
     return (
-        <Layout>
-            <div className="space-y-8 max-w-6xl mx-auto px-2 md:px-0">
+        <Layout user={user}>
+            <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
-                            Selamat Datang,{" "}
-                            <span className="text-blue-700">
-                                {user?.name || "User"}
-                            </span>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex-1">
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                            Selamat Datang, {user?.name || "User"}! 👋
                         </h1>
-                        <p className="text-gray-500 text-sm md:text-base">
+                        <p className="text-sm sm:text-base text-gray-600">
                             Kelola data Pajak Bumi dan Bangunan Anda dengan
                             mudah
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-md">
-                            <span className="text-white font-bold text-2xl md:text-3xl">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-md">
+                            <span className="text-white font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl">
                                 {user?.name?.charAt(0)?.toUpperCase() || "U"}
                             </span>
                         </div>
@@ -212,10 +209,10 @@ const Dashboard = () => {
 
                 {/* Notifikasi Tahun Baru */}
                 {newYearNotification && (
-                    <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-4">
-                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <div className="bg-green-50 border border-green-200 rounded-xl p-3 sm:p-4 flex items-start sm:items-center gap-3 sm:gap-4">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                             <svg
-                                className="w-6 h-6 text-green-600"
+                                className="w-4 h-4 sm:w-6 sm:h-6 text-green-600"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -228,11 +225,11 @@ const Dashboard = () => {
                                 />
                             </svg>
                         </div>
-                        <div>
-                            <h3 className="text-lg font-semibold text-green-800 mb-1">
+                        <div className="flex-1 min-w-0">
+                            <h3 className="text-base sm:text-lg font-semibold text-green-800 mb-1">
                                 Data Tahun Baru Dibuat Otomatis! 🎉
                             </h3>
-                            <p className="text-green-700 text-sm">
+                            <p className="text-green-700 text-xs sm:text-sm">
                                 {newYearNotification.message}
                             </p>
                             <p className="text-xs text-green-600 mt-1">
@@ -243,10 +240,10 @@ const Dashboard = () => {
                         </div>
                         <button
                             onClick={() => setNewYearNotification(null)}
-                            className="ml-auto text-green-600 hover:text-green-800"
+                            className="text-green-600 hover:text-green-800 flex-shrink-0"
                         >
                             <svg
-                                className="w-5 h-5"
+                                className="w-4 h-4 sm:w-5 sm:h-5"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -263,7 +260,7 @@ const Dashboard = () => {
                 )}
 
                 {/* Statistik */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
                     <StatCard
                         icon="total"
                         label="Total PBB"
@@ -300,7 +297,7 @@ const Dashboard = () => {
                 </div>
 
                 {/* Aksi Cepat */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     <QuickActionCard
                         icon="plus"
                         title="Tambah Data Pajak"
@@ -328,10 +325,10 @@ const Dashboard = () => {
                 </div>
 
                 {/* Aktivitas Terbaru */}
-                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-                    <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 border border-gray-100">
+                    <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center gap-2">
                         <svg
-                            className="w-6 h-6 text-blue-600"
+                            className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -347,20 +344,20 @@ const Dashboard = () => {
                     </h2>
                     {recentActivities.length > 0 ? (
                         <>
-                            <div className="space-y-3">
+                            <div className="space-y-2 sm:space-y-3">
                                 {paginatedActivities.map((activity, index) => (
                                     <div
                                         key={activity._id || index}
-                                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition"
+                                        className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-blue-50 transition"
                                     >
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                                             <div
-                                                className={`w-9 h-9 rounded-lg flex items-center justify-center ${getStatusColor(
+                                                className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${getStatusColor(
                                                     activity.status
                                                 )}`}
                                             >
                                                 <svg
-                                                    className="w-5 h-5"
+                                                    className="w-4 h-4 sm:w-5 sm:h-5"
                                                     fill="none"
                                                     stroke="currentColor"
                                                     viewBox="0 0 24 24"
@@ -373,8 +370,8 @@ const Dashboard = () => {
                                                     />
                                                 </svg>
                                             </div>
-                                            <div>
-                                                <div className="font-medium text-gray-900 text-sm md:text-base">
+                                            <div className="min-w-0 flex-1">
+                                                <div className="font-medium text-gray-900 text-xs sm:text-sm md:text-base truncate">
                                                     {activity.tax_type} -{" "}
                                                     {activity.spt_number}
                                                 </div>
@@ -389,15 +386,15 @@ const Dashboard = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                                             <span
-                                                className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                                className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium ${getStatusColor(
                                                     activity.status
                                                 )}`}
                                             >
                                                 {getStatusText(activity.status)}
                                             </span>
-                                            <span className="text-sm font-medium text-gray-900">
+                                            <span className="text-xs sm:text-sm font-medium text-gray-900">
                                                 {new Intl.NumberFormat(
                                                     "id-ID",
                                                     {
@@ -414,9 +411,9 @@ const Dashboard = () => {
                             </div>
                             {/* Pagination controls */}
                             {totalActivityPages > 1 && (
-                                <div className="flex justify-center items-center gap-2 mt-4">
+                                <div className="flex justify-center items-center gap-2 mt-3 sm:mt-4">
                                     <button
-                                        className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+                                        className="px-2 sm:px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 text-xs sm:text-sm"
                                         onClick={() =>
                                             setCurrentActivityPage((p) =>
                                                 Math.max(1, p - 1)
@@ -426,12 +423,12 @@ const Dashboard = () => {
                                     >
                                         Previous
                                     </button>
-                                    <span className="text-sm text-gray-600">
+                                    <span className="text-xs sm:text-sm text-gray-600">
                                         Halaman {currentActivityPage} dari{" "}
                                         {totalActivityPages}
                                     </span>
                                     <button
-                                        className="px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+                                        className="px-2 sm:px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 text-xs sm:text-sm"
                                         onClick={() =>
                                             setCurrentActivityPage((p) =>
                                                 Math.min(
@@ -451,9 +448,9 @@ const Dashboard = () => {
                             )}
                         </>
                     ) : (
-                        <div className="text-center py-8">
+                        <div className="text-center py-6 sm:py-8">
                             <svg
-                                className="w-16 h-16 text-gray-300 mx-auto mb-4"
+                                className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 mx-auto mb-3 sm:mb-4"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -465,10 +462,10 @@ const Dashboard = () => {
                                     d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                 />
                             </svg>
-                            <p className="text-gray-500">
+                            <p className="text-sm sm:text-base text-gray-500">
                                 Belum ada aktivitas terbaru
                             </p>
-                            <p className="text-sm text-gray-400">
+                            <p className="text-xs sm:text-sm text-gray-400">
                                 Mulai dengan menambahkan data pajak pertama Anda
                             </p>
                         </div>
@@ -492,7 +489,7 @@ function StatCard({
     const iconMap = {
         total: (
             <svg
-                className="w-6 h-6 text-blue-600"
+                className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -507,7 +504,7 @@ function StatCard({
         ),
         paid: (
             <svg
-                className="w-6 h-6 text-green-600"
+                className="w-5 h-5 sm:w-6 sm:h-6 text-green-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -522,7 +519,7 @@ function StatCard({
         ),
         property: (
             <svg
-                className="w-6 h-6 text-yellow-600"
+                className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -537,7 +534,7 @@ function StatCard({
         ),
         unpaid: (
             <svg
-                className="w-6 h-6 text-red-600"
+                className="w-5 h-5 sm:w-6 sm:h-6 text-red-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -552,7 +549,7 @@ function StatCard({
         ),
         outstanding: (
             <svg
-                className="w-6 h-6 text-orange-600"
+                className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -583,17 +580,19 @@ function StatCard({
     }
     return (
         <div
-            className={`bg-white rounded-xl shadow-lg p-5 border border-gray-100 flex flex-col items-start gap-2 ${
+            className={`bg-white rounded-xl shadow-lg p-3 sm:p-4 md:p-5 border border-gray-100 flex flex-col items-start gap-2 ${
                 isOutstanding ? "ring-2 ring-orange-400" : ""
             }`}
         >
             <div
-                className={`w-12 h-12 rounded-lg flex items-center justify-center ${colorMap[color]}`}
+                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${colorMap[color]}`}
             >
                 {iconMap[icon]}
             </div>
-            <p className="text-xs font-medium text-gray-500 mt-2">{label}</p>
-            <p className="text-xl md:text-2xl font-bold text-gray-900">
+            <p className="text-xs font-medium text-gray-500 mt-1 sm:mt-2">
+                {label}
+            </p>
+            <p className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
                 {isNumber
                     ? value
                     : new Intl.NumberFormat("id-ID", {
@@ -621,7 +620,7 @@ function QuickActionCard({ icon, title, desc, color, onClick, buttonLabel }) {
     const iconMap = {
         plus: (
             <svg
-                className="w-6 h-6 text-blue-600"
+                className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -636,7 +635,7 @@ function QuickActionCard({ icon, title, desc, color, onClick, buttonLabel }) {
         ),
         list: (
             <svg
-                className="w-6 h-6 text-green-600"
+                className="w-5 h-5 sm:w-6 sm:h-6 text-green-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -651,7 +650,7 @@ function QuickActionCard({ icon, title, desc, color, onClick, buttonLabel }) {
         ),
         report: (
             <svg
-                className="w-6 h-6 text-purple-600"
+                className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -672,18 +671,20 @@ function QuickActionCard({ icon, title, desc, color, onClick, buttonLabel }) {
     }
     return (
         <div
-            className={`bg-white rounded-xl shadow-lg p-6 border border-gray-100 flex flex-col items-start gap-3 hover:shadow-xl transition group`}
+            className={`bg-white rounded-xl shadow-lg p-4 sm:p-5 md:p-6 border border-gray-100 flex flex-col items-start gap-2 sm:gap-3 hover:shadow-xl transition group`}
         >
             <div
-                className={`w-10 h-10 rounded-lg flex items-center justify-center ${colorMap[color]}`}
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center ${colorMap[color]}`}
             >
                 {iconMap[icon]}
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-            <p className="text-gray-600 text-sm flex-1">{desc}</p>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                {title}
+            </h3>
+            <p className="text-gray-600 text-xs sm:text-sm flex-1">{desc}</p>
             <button
                 onClick={onClick}
-                className={`w-full mt-2 bg-${color}-600 hover:bg-${color}-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200`}
+                className={`w-full mt-2 bg-${color}-600 hover:bg-${color}-700 text-white px-3 sm:px-4 py-2 rounded-lg font-medium transition-colors duration-200 text-sm sm:text-base`}
             >
                 {buttonLabel}
             </button>

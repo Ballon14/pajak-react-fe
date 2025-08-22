@@ -12,7 +12,7 @@ const QuickActionCard = ({
     const iconMap = {
         users: (
             <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -27,7 +27,7 @@ const QuickActionCard = ({
         ),
         tax: (
             <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -42,7 +42,7 @@ const QuickActionCard = ({
         ),
         report: (
             <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -57,7 +57,7 @@ const QuickActionCard = ({
         ),
         plus: (
             <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -72,7 +72,7 @@ const QuickActionCard = ({
         ),
         list: (
             <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -87,7 +87,7 @@ const QuickActionCard = ({
         ),
         settings: (
             <svg
-                className="w-6 h-6"
+                className="w-5 h-5 sm:w-6 sm:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -159,28 +159,30 @@ const QuickActionCard = ({
         <div
             className={`bg-white rounded-2xl shadow-lg border ${colors.border} hover:shadow-xl transition-all duration-300 group ${colors.hover}`}
         >
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
                 <div className="flex items-start justify-between mb-4">
                     <div
-                        className={`w-12 h-12 ${colors.bg} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}
+                        className={`w-10 h-10 sm:w-12 sm:h-12 ${colors.bg} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}
                     >
-                        <div className={colors.icon}>{iconMap[icon]}</div>
+                        <div className={`${colors.icon} scale-90 sm:scale-100`}>
+                            {iconMap[icon]}
+                        </div>
                     </div>
                     <div className="w-2 h-2 bg-gray-300 rounded-full group-hover:bg-gray-400 transition-colors"></div>
                 </div>
 
                 <div className="space-y-3">
-                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-gray-700 transition-colors">
+                    <h3 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-gray-700 transition-colors">
                         {title}
                     </h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                         {desc}
                     </p>
 
                     <button
                         onClick={onClick}
                         disabled={disabled}
-                        className={`w-full mt-4 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
+                        className={`w-full mt-4 px-3 sm:px-4 py-2 sm:py-3 rounded-xl font-medium text-xs sm:text-sm transition-all duration-200 ${
                             colors.button
                         } ${
                             disabled
