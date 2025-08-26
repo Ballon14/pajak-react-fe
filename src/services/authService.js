@@ -6,8 +6,8 @@ export const authService = {
             const response = await api.post("/auth/login", credentials)
             return response.data
         } catch (error) {
-            console.error('AuthService login error:', error);
-            throw error;
+            console.error("AuthService login error:", error)
+            throw error
         }
     },
 
@@ -44,12 +44,51 @@ export const authService = {
     },
 
     setUser(user) {
-        localStorage.setItem("user", JSON.stringify(user))
+        try {
+            // Validate user data before saving
+            if (!user || typeof user !== "object") {
+                console.error("Invalid user data provided to setUser:", user)
+                return
+            }
+
+            if (!user.name || !user.email) {
+                console.error("Missing required user fields:", user)
+                return
+            }
+
+            localStorage.setItem("user", JSON.stringify(user))
+        } catch (error) {
+            console.error("Error saving user data to localStorage:", error)
+        }
     },
 
     getUserFromStorage() {
-        const user = localStorage.getItem("user")
-        return user ? JSON.parse(user) : null
+        try {
+            const user = localStorage.getItem("user")
+            if (!user) return null
+
+            const parsedUser = JSON.parse(user)
+
+            // Validate user data structure
+            if (!parsedUser || typeof parsedUser !== "object") {
+                console.error("Invalid user data in localStorage:", parsedUser)
+                this.removeUser()
+                return null
+            }
+
+            // Check if required fields exist
+            if (!parsedUser.name || !parsedUser.email) {
+                console.error("Missing required user fields:", parsedUser)
+                this.removeUser()
+                return null
+            }
+
+            return parsedUser
+        } catch (error) {
+            console.error("Error parsing user data from localStorage:", error)
+            this.removeUser()
+            return null
+        }
     },
 
     removeUser() {
@@ -62,6 +101,24 @@ export const authService = {
 
     isAdmin() {
         const user = this.getUserFromStorage()
-        return user?.is_admin || false
+        return user?.is_admin === true
+    },
+
+    // Debug function to check current user data
+    debugUserData() {
+        const user = this.getUserFromStorage()
+        const token = this.getToken()
+        console.log("Current user data:", {
+            user,
+            token: token ? "exists" : "missing",
+            isAuthenticated: this.isAuthenticated(),
+            isAdmin: this.isAdmin(),
+        })
+        return {
+            user,
+            token,
+            isAuthenticated: this.isAuthenticated(),
+            isAdmin: this.isAdmin(),
+        }
     },
 }

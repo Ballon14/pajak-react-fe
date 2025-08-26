@@ -1,8 +1,23 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
+import { authService } from "../../services/authService"
 import AdminSidebar from "./AdminSidebar"
 
-const AdminLayout = ({ children, user }) => {
+const AdminLayout = ({ children, user: propUser }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
+    const [user, setUser] = useState(propUser)
+
+    useEffect(() => {
+        // If no user prop provided, get from storage
+        if (!user) {
+            const userData = authService.getUserFromStorage()
+            setUser(userData)
+        }
+
+        // Debug: Check user data
+        if (process.env.NODE_ENV === "development") {
+            authService.debugUserData()
+        }
+    }, [user, propUser])
 
     return (
         <div className="flex min-h-screen bg-gray-50">

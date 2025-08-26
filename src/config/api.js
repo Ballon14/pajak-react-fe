@@ -61,7 +61,6 @@ api.interceptors.response.use(
 
         if (error.response) {
             if (error.response.status === 401) {
-                console.log("🚫 Unauthorized - Logging out")
                 authService.removeToken()
                 authService.removeUser()
                 window.location.href = "/login"
