@@ -1,59 +1,24 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import { userService } from "../../services/userService"
-import { getChatSocket } from "../../services/chatSocket"
+import { messageService } from "../../services/messageService"
 import { authService } from "../../services/authService"
 import AdminLayout from "./AdminLayout"
 import ConfirmModal from "./ConfirmModal"
-import { getAdminSettings } from "../../services/settingsService"
 
 const AdminChat = () => {
     const [users, setUsers] = useState([])
     const [activeUser, setActiveUser] = useState(null)
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState("")
-    const [onlineUsers] = useState(new Set())
     const [unreadCounts, setUnreadCounts] = useState({})
-    const [isPartnerTyping, setIsPartnerTyping] = useState(false)
     const [isListOpen, setIsListOpen] = useState(false)
     const [isAtBottom, setIsAtBottom] = useState(true)
     const [hasNewMessages, setHasNewMessages] = useState(false)
     const [confirmOpen, setConfirmOpen] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [isSending, setIsSending] = useState(false)
     const listRef = useRef(null)
     const me = useMemo(() => authService.getUserFromStorage(), [])
-
-    const playBeep = () => {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)()
-            const osc = ctx.createOscillator()
-            const gain = ctx.createGain()
-            osc.type = "sine"
-            osc.frequency.value = 880
-            osc.connect(gain)
-            gain.connect(ctx.destination)
-            gain.gain.setValueAtTime(0.001, ctx.currentTime)
-            gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01)
-            osc.start()
-            setTimeout(() => {
-                gain.gain.exponentialRampToValueAtTime(
-                    0.001,
-                    ctx.currentTime + 0.05
-                )
-                osc.stop()
-                ctx.close()
-            }, 120)
-        } catch (e) {
-            console.error(e)
-        }
-    }
-
-    const showDesktopNotification = (title, body) => {
-        if (typeof window === "undefined" || !("Notification" in window)) return
-        if (document.hasFocus()) return
-        if (Notification.permission === "granted") {
-            const n = new Notification(title, { body })
-            setTimeout(() => n.close(), 4000)
-        }
-    }
 
     useEffect(() => {
         loadUsers()
@@ -67,11 +32,16 @@ const AdminChat = () => {
             })
             const userList = res?.data?.data || []
             setUsers(userList)
-            const counts = {}
-            userList.forEach((u) => {
-                counts[u.id || u._id] = 0
-            })
-            setUnreadCounts(counts)
+
+            // Load conversations to get unread counts
+            const conversationsRes = await messageService.getConversations()
+            if (conversationsRes.success) {
+                const counts = {}
+                conversationsRes.data.forEach((conv) => {
+                    counts[conv.other_user._id] = conv.unread_count
+                })
+                setUnreadCounts(counts)
+            }
         } catch (error) {
             console.error("Failed to load users:", error)
         }
@@ -89,93 +59,87 @@ const AdminChat = () => {
     useEffect(() => {
         if (!activeUser) return
 
-        const socket = getChatSocket()
-        const with_user_id = activeUser?.id || activeUser?._id
+        const loadConversation = async () => {
+            try {
+                setIsLoading(true)
+                const with_user_id = activeUser?.id || activeUser?._id
 
-        socket.emit("conversation:history", { with_user_id })
-        socket.emit("conversation:seen", { with_user_id })
-        setUnreadCounts((prev) => ({ ...prev, [with_user_id]: 0 }))
-
-        const handleHistory = ({ with_user_id: id, messages }) => {
-            if (id === with_user_id) {
-                setMessages(messages.map((m) => ({ ...m, _animate: true })))
-                setTimeout(() => scrollToBottom("auto"), 0)
-            }
-        }
-
-        const handleNewMessage = (msg) => {
-            const conversation_id = [me?.id || me?._id, with_user_id]
-                .map(String)
-                .sort()
-                .join(":")
-            if (msg.conversation_id === conversation_id) {
-                const mine = String(msg.sender_id) === String(me?.id || me?._id)
-                setMessages((prev) => [...prev, { ...msg, _animate: true }])
-                if (!isAtBottom && !mine) setHasNewMessages(true)
-
-                if (!mine) {
-                    const settings = getAdminSettings()
-                    if (settings.chatSound) playBeep()
-                    if (settings.desktopNotifications) {
-                        showDesktopNotification(
-                            activeUser?.name || "Pesan baru",
-                            msg.content || "Pesan baru masuk"
-                        )
-                    }
+                // Load conversation history
+                const historyResponse =
+                    await messageService.getConversationHistory(with_user_id)
+                if (historyResponse.success) {
+                    setMessages(
+                        historyResponse.data.messages.map((m) => ({
+                            ...m,
+                            _animate: true,
+                        }))
+                    )
+                    setTimeout(() => scrollToBottom("auto"), 0)
                 }
+
+                // Mark conversation as seen
+                await messageService.markConversationAsSeen(with_user_id)
+                setUnreadCounts((prev) => ({ ...prev, [with_user_id]: 0 }))
+            } catch (error) {
+                console.error("Error loading conversation:", error)
+            } finally {
+                setIsLoading(false)
             }
         }
 
-        const handleTyping = ({ from_user_id, is_typing }) => {
-            if (String(from_user_id) === String(with_user_id)) {
-                setIsPartnerTyping(!!is_typing)
-                if (is_typing && isAtBottom) scrollToBottom("smooth")
-            }
-        }
+        loadConversation()
+    }, [activeUser])
 
-        const handleDeleted = ({ conversation_id }) => {
-            const currentId = [me?.id || me?._id, with_user_id]
-                .map(String)
-                .sort()
-                .join(":")
-            if (conversation_id === currentId) {
-                setMessages([])
-                setIsPartnerTyping(false)
-            }
-        }
-
-        socket.on("conversation:history:result", handleHistory)
-        socket.on("message:new", handleNewMessage)
-        socket.on("user:typing", handleTyping)
-        socket.on("conversation:deleted", handleDeleted)
-
-        return () => {
-            socket.off("conversation:history:result", handleHistory)
-            socket.off("message:new", handleNewMessage)
-            socket.off("user:typing", handleTyping)
-            socket.off("conversation:deleted", handleDeleted)
-        }
-    }, [activeUser, me, isAtBottom])
-
+    // Polling for new messages every 5 seconds when chat is active
     useEffect(() => {
-        const socket = getChatSocket()
-        const handleNewMessage = (msg) => {
-            const sender_id = msg.sender_id
-            if (sender_id !== (me?.id || me?._id)) {
-                setUnreadCounts((prev) => ({
-                    ...prev,
-                    [sender_id]: (prev[sender_id] || 0) + 1,
-                }))
-                const settings = getAdminSettings()
-                if (settings.chatSound) playBeep()
-                if (settings.desktopNotifications) {
-                    showDesktopNotification("Pesan baru", msg.content || "")
+        if (!activeUser) return
+
+        const pollInterval = setInterval(async () => {
+            try {
+                const with_user_id = activeUser?.id || activeUser?._id
+                const historyResponse =
+                    await messageService.getConversationHistory(with_user_id)
+
+                if (historyResponse.success) {
+                    const newMessages = historyResponse.data.messages
+                    setMessages((prev) => {
+                        // Check if there are new messages
+                        if (newMessages.length > prev.length) {
+                            return newMessages.map((m) => ({
+                                ...m,
+                                _animate: true,
+                            }))
+                        }
+                        return prev
+                    })
                 }
+            } catch (error) {
+                console.error("Error polling for new messages:", error)
             }
-        }
-        socket.on("message:new", handleNewMessage)
-        return () => socket.off("message:new", handleNewMessage)
-    }, [activeUser, users, me])
+        }, 5000) // Poll every 5 seconds
+
+        return () => clearInterval(pollInterval)
+    }, [activeUser])
+
+    // Polling for unread counts every 10 seconds
+    useEffect(() => {
+        const pollInterval = setInterval(async () => {
+            try {
+                const conversationsRes = await messageService.getConversations()
+                if (conversationsRes.success) {
+                    const counts = {}
+                    conversationsRes.data.forEach((conv) => {
+                        counts[conv.other_user._id] = conv.unread_count
+                    })
+                    setUnreadCounts(counts)
+                }
+            } catch (error) {
+                console.error("Error polling for unread counts:", error)
+            }
+        }, 10000) // Poll every 10 seconds
+
+        return () => clearInterval(pollInterval)
+    }, [])
 
     useEffect(() => {
         if (!messages || messages.length === 0) return
@@ -196,12 +160,27 @@ const AdminChat = () => {
         if (atBottomNow) setHasNewMessages(false)
     }
 
-    const sendMessage = () => {
-        if (!input.trim() || !activeUser) return
-        const socket = getChatSocket()
-        const to_user_id = activeUser?.id || activeUser?._id
-        socket.emit("message:send", { to_user_id, content: input.trim() })
-        setInput("")
+    const sendMessage = async () => {
+        if (!input.trim() || !activeUser || isSending) return
+
+        try {
+            setIsSending(true)
+            const to_user_id = activeUser?.id || activeUser?._id
+            const response = await messageService.sendMessage(
+                to_user_id,
+                input.trim()
+            )
+
+            if (response.success) {
+                // Add the new message to the list
+                setMessages((prev) => [...prev, response.data])
+                setInput("")
+            }
+        } catch (error) {
+            console.error("Error sending message:", error)
+        } finally {
+            setIsSending(false)
+        }
     }
 
     const deleteConversation = () => {
@@ -209,17 +188,23 @@ const AdminChat = () => {
         setConfirmOpen(true)
     }
 
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (!activeUser) return
-        const socket = getChatSocket()
-        const with_user_id = activeUser?.id || activeUser?._id
-        socket.emit("conversation:delete", { with_user_id }, (res) => {
-            if (res?.success) {
+
+        try {
+            const with_user_id = activeUser?.id || activeUser?._id
+            const response = await messageService.deleteConversation(
+                with_user_id
+            )
+
+            if (response.success) {
                 setMessages([])
-                setIsPartnerTyping(false)
             }
+        } catch (error) {
+            console.error("Error deleting conversation:", error)
+        } finally {
             setConfirmOpen(false)
-        })
+        }
     }
 
     const cancelDelete = () => setConfirmOpen(false)
@@ -227,7 +212,6 @@ const AdminChat = () => {
     const backFromChat = () => {
         setActiveUser(null)
         setMessages([])
-        setIsPartnerTyping(false)
         setIsAtBottom(true)
     }
 
@@ -252,7 +236,7 @@ const AdminChat = () => {
                     Chat dengan Admin
                 </h2>
                 <p className="text-sm text-gray-500">
-                    {onlineUsers.length} pengguna online
+                    {users.length} pengguna terdaftar
                 </p>
             </div>
             <div className="flex-1 overflow-y-auto">
@@ -279,13 +263,7 @@ const AdminChat = () => {
                                                     ?.toUpperCase() || "U"}
                                             </span>
                                         </div>
-                                        <div
-                                            className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
-                                                onlineUsers.has(userId)
-                                                    ? "bg-green-500"
-                                                    : "bg-gray-400"
-                                            }`}
-                                        ></div>
+                                        <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white bg-gray-400"></div>
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="font-medium text-gray-900 truncate">
@@ -395,15 +373,7 @@ const AdminChat = () => {
                                     </div>
                                 </div>
                                 <div className="ml-auto flex items-center gap-2">
-                                    <div
-                                        className={`w-2 h-2 rounded-full ${
-                                            onlineUsers.has(
-                                                activeUser.id || activeUser._id
-                                            )
-                                                ? "bg-green-500"
-                                                : "bg-gray-400"
-                                        }`}
-                                    ></div>
+                                    <div className="w-2 h-2 rounded-full bg-gray-400"></div>
                                     <button
                                         onClick={deleteConversation}
                                         className="p-2 rounded-lg border border-gray-300 text-red-600 hover:bg-red-50"
@@ -518,11 +488,9 @@ const AdminChat = () => {
                                             )
                                         })
                                     )}
-                                    {isPartnerTyping && (
-                                        <div className="flex justify-start">
-                                            <div className="bg-white border border-gray-200 px-3 py-2 rounded-lg text-sm animate-fade-in-up">
-                                                Sedang mengetik...
-                                            </div>
+                                    {isLoading && (
+                                        <div className="flex justify-center py-4">
+                                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                                         </div>
                                     )}
                                 </div>
@@ -570,23 +538,27 @@ const AdminChat = () => {
                                     />
                                     <button
                                         onClick={sendMessage}
-                                        disabled={!input.trim()}
+                                        disabled={!input.trim() || isSending}
                                         aria-label="Kirim"
                                         className="p-3 rounded-full btn-gradient disabled:bg-gray-300 disabled:cursor-not-allowed shadow-md hover:shadow-lg transition-all"
                                     >
-                                        <svg
-                                            className="w-5 h-5 text-white"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M3 10l18-7-7 18-2.5-6.5L5 12.5 3 10z"
-                                            />
-                                        </svg>
+                                        {isSending ? (
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                        ) : (
+                                            <svg
+                                                className="w-5 h-5 text-white"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M3 10l18-7-7 18-2.5-6.5L5 12.5 3 10z"
+                                                />
+                                            </svg>
+                                        )}
                                     </button>
                                     <button
                                         onClick={deleteConversation}

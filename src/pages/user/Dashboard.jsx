@@ -29,28 +29,23 @@ const Dashboard = () => {
 
     const loadDashboardData = async () => {
         try {
-            console.log("🔄 Loading dashboard data...")
             setLoading(true)
 
             // Get user data
             const currentUser = authService.getUserFromStorage()
-            console.log("👤 Current user:", currentUser)
             if (currentUser) {
                 setUser(currentUser)
             }
 
             // Check and auto-create tax records for new year
-            console.log("📅 Checking for new year tax records...")
             try {
                 const yearCheckResponse =
                     await taxRecordService.checkAndCreateForNewYear()
-                console.log("📅 Year check response:", yearCheckResponse)
 
                 if (
                     yearCheckResponse.success &&
                     yearCheckResponse.autoCreated
                 ) {
-                    console.log("✅ Auto-created tax records for new year")
                     setNewYearNotification({
                         message: `Data PBB untuk tahun ${new Date().getFullYear()} telah dibuat otomatis!`,
                         count: yearCheckResponse.count,
@@ -61,13 +56,7 @@ const Dashboard = () => {
             }
 
             // Get statistics
-            console.log("📊 Fetching statistics...")
             const statsResponse = await taxRecordService.getStatistics()
-            console.log("📊 Statistics API Response:", {
-                success: statsResponse.success,
-                data: statsResponse.data,
-                fullResponse: statsResponse,
-            })
 
             if (statsResponse.success && statsResponse.data) {
                 const newStats = {
@@ -82,19 +71,13 @@ const Dashboard = () => {
                     outstandingRecords:
                         statsResponse.data.outstanding_records || 0,
                 }
-                console.log("📈 Setting new stats:", newStats)
                 setStats(newStats)
             } else {
                 console.error("❌ Invalid statistics response:", statsResponse)
             }
 
             // Get recent activities (tax records)
-            console.log("📋 Fetching recent activities...")
             const activitiesResponse = await taxRecordService.getAll()
-            console.log("📋 Activities API Response:", {
-                success: activitiesResponse.success,
-                data: activitiesResponse.data,
-            })
 
             if (activitiesResponse.success && activitiesResponse.data) {
                 // Sort by created_at and take latest 5
@@ -105,7 +88,6 @@ const Dashboard = () => {
                     )
                     .slice(0, 5)
 
-                console.log("📋 Setting recent activities:", sortedActivities)
                 setRecentActivities(sortedActivities)
             } else {
                 console.error(
@@ -114,14 +96,20 @@ const Dashboard = () => {
                 )
             }
         } catch (error) {
-            console.error("❌ Error loading dashboard data:", {
-                message: error.message,
-                error: error,
-                stack: error.stack,
+            console.error("❌ Error loading dashboard data:", error)
+            setError("Gagal memuat data dashboard. Silakan coba lagi.")
+            setStats({
+                total_users: 0,
+                active_users: 0,
+                total_records: 0,
+                lunas: 0,
+                belum_lunas: 0,
+                total_tax: 0,
+                paid_tax: 0,
+                unpaid_tax: 0,
             })
         } finally {
             setLoading(false)
-            console.log("✅ Dashboard loading complete")
         }
     }
 

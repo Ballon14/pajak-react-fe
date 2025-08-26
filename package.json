@@ -22,7 +22,6 @@
         "react-dom": "^19.1.0",
         "react-hook-form": "^7.61.1",
         "react-router-dom": "^7.7.1",
-        "socket.io-client": "^4.7.5",
         "xlsx": "^0.18.5",
         "yup": "^1.6.1"
     },

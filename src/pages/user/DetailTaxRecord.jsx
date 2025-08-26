@@ -31,14 +31,11 @@ const DetailTaxRecord = () => {
     const loadTaxRecord = async () => {
         try {
             setLoading(true)
-            console.log("🔄 Loading tax record with ID:", id)
 
             const response = await taxRecordService.getById(id)
-            console.log("📋 API Response:", response)
 
             if (response.success && response.data) {
                 const recordData = response.data
-                console.log("✅ Record data loaded:", recordData)
                 setRecord(recordData)
             } else {
                 console.error("❌ Invalid response:", response)
@@ -456,4 +453,3 @@ const DetailTaxRecord = () => {
 }
 
 export default DetailTaxRecord
- 

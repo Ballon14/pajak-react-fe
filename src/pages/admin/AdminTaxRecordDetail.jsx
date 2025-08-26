@@ -167,7 +167,9 @@ const AdminTaxRecordDetail = () => {
                             </svg>
                         </button>
                         <button
-                            onClick={() => navigate(`/tax-records/${id}/edit`)}
+                            onClick={() =>
+                                navigate(`/admin/tax-records/${id}/edit`)
+                            }
                             className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                             title="Edit Record"
                         >

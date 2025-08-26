@@ -45,14 +45,11 @@ const EditTaxRecord = () => {
     const loadTaxRecord = async () => {
         try {
             setLoading(true)
-            console.log("🔄 Loading tax record with ID:", id)
 
             const response = await taxRecordService.getById(id)
-            console.log("📋 API Response:", response)
 
             if (response.success && response.data) {
                 const recordData = response.data
-                console.log("✅ Record data loaded:", recordData)
 
                 setFormData({
                     name: recordData.name || "",
@@ -113,8 +110,6 @@ const EditTaxRecord = () => {
         setSaving(true)
 
         try {
-            console.log("🔄 Submitting form data:", formData)
-
             // Validate required fields
             if (
                 !formData.name ||
@@ -146,9 +141,7 @@ const EditTaxRecord = () => {
                 year: 2025,
             }
 
-            console.log("📤 Sending update data:", updateData)
             const response = await taxRecordService.update(id, updateData)
-            console.log("📥 Update response:", response)
 
             if (response.success) {
                 showToast("Data PBB berhasil diperbarui", "success")

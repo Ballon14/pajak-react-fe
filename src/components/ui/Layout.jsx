@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { authService } from "../../services/authService"
 import UserSidebar from "./UserSidebar"
+import ChatWidget from "./ChatWidget"
 
 const Layout = ({ children }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -63,6 +64,9 @@ const Layout = ({ children }) => {
                 {/* Page Content */}
                 <main className="min-h-screen px-6 py-8">{children}</main>
             </div>
+            
+            {/* Chat Widget for Users */}
+            <ChatWidget />
         </div>
     )
 }

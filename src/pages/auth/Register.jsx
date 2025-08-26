@@ -45,7 +45,6 @@ const Register = () => {
 
         try {
             const response = await authService.register(data)
-            console.log("Register response:", response)
 
             if (response.success) {
                 authService.setToken(response.data.token)

@@ -3,17 +3,8 @@ import { authService } from "../services/authService"
 
 // Get base URL from environment variable or fallback to localhost for development
 const getBaseURL = () => {
-    console.log("🔧 Environment check:", {
-        VITE_API_URL: import.meta.env.VITE_API_URL,
-        PROD: import.meta.env.PROD,
-        DEV: import.meta.env.DEV,
-        MODE: import.meta.env.MODE,
-        location: window.location.origin,
-    })
-
     // Use environment variable if available
     if (import.meta.env.VITE_API_URL) {
-        console.log("📡 Using VITE_API_URL:", import.meta.env.VITE_API_URL)
         return import.meta.env.VITE_API_URL
     }
 
@@ -21,18 +12,15 @@ const getBaseURL = () => {
     if (import.meta.env.PROD) {
         // In production, use the same domain as the frontend
         const prodURL = `${window.location.origin}/api`
-        console.log("📡 Using production URL:", prodURL)
         return prodURL
     }
 
     // In development, use localhost
     const devURL = "http://localhost:8000/api"
-    console.log("📡 Using development URL:", devURL)
     return devURL
 }
 
 const baseURL = getBaseURL()
-console.log("🚀 Final API Base URL:", baseURL)
 
 const api = axios.create({
     baseURL: baseURL,
@@ -47,11 +35,6 @@ const api = axios.create({
 api.interceptors.request.use(
     (config) => {
         const token = authService.getToken()
-        console.log("🔒 API Request:", {
-            url: config.url,
-            method: config.method,
-            hasToken: !!token,
-        })
         if (token) {
             config.headers.Authorization = `Bearer ${token}`
         }
@@ -66,11 +49,6 @@ api.interceptors.request.use(
 // Add a response interceptor
 api.interceptors.response.use(
     (response) => {
-        console.log("✅ API Response:", {
-            url: response.config.url,
-            status: response.status,
-            data: response.data,
-        })
         return response
     },
     async (error) => {

@@ -26,7 +26,6 @@ import {
     AdminSettings,
 } from "./pages"
 import { authService } from "./services/authService"
-import { ChatWidget } from "./components/ui"
 
 // Protected Route Component
 const ProtectedRoute = ({ children, requireAdmin = false }) => {
@@ -55,10 +54,7 @@ function App() {
                         path="/dashboard"
                         element={
                             <ProtectedRoute>
-                                <>
-                                    <Dashboard />
-                                    <ChatWidget />
-                                </>
+                                <Dashboard />
                             </ProtectedRoute>
                         }
                     />
@@ -66,10 +62,7 @@ function App() {
                         path="/tax-records"
                         element={
                             <ProtectedRoute>
-                                <>
-                                    <TaxRecords />
-                                    <ChatWidget />
-                                </>
+                                <TaxRecords />
                             </ProtectedRoute>
                         }
                     />
@@ -77,10 +70,7 @@ function App() {
                         path="/tax-records/create"
                         element={
                             <ProtectedRoute>
-                                <>
-                                    <AddTaxRecord />
-                                    <ChatWidget />
-                                </>
+                                <AddTaxRecord />
                             </ProtectedRoute>
                         }
                     />
@@ -88,10 +78,7 @@ function App() {
                         path="/tax-records/:id"
                         element={
                             <ProtectedRoute>
-                                <>
-                                    <DetailTaxRecord />
-                                    <ChatWidget />
-                                </>
+                                <DetailTaxRecord />
                             </ProtectedRoute>
                         }
                     />
@@ -99,10 +86,7 @@ function App() {
                         path="/tax-records/:id/edit"
                         element={
                             <ProtectedRoute>
-                                <>
-                                    <EditTaxRecord />
-                                    <ChatWidget />
-                                </>
+                                <EditTaxRecord />
                             </ProtectedRoute>
                         }
                     />
@@ -110,10 +94,7 @@ function App() {
                         path="/reports"
                         element={
                             <ProtectedRoute>
-                                <>
-                                    <Reports />
-                                    <ChatWidget />
-                                </>
+                                <Reports />
                             </ProtectedRoute>
                         }
                     />

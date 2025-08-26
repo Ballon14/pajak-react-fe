@@ -23,8 +23,8 @@ FROM nginx:alpine AS production
 # Install dumb-init untuk proper signal handling
 RUN apk add --no-cache dumb-init
 
-# Copy custom nginx config (opsional)
-# COPY nginx.conf /etc/nginx/nginx.conf
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy built files dari builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html

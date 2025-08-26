@@ -1,15 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from "react"
-import { getChatSocket } from "../../services/chatSocket"
 import { authService } from "../../services/authService"
 import { userService } from "../../services/userService"
+import { messageService } from "../../services/messageService"
 
 const ChatWidget = () => {
     const [isOpen, setIsOpen] = useState(false)
     const [messages, setMessages] = useState([])
     const [input, setInput] = useState("")
     const [adminUser, setAdminUser] = useState(null)
-    const [isTyping, setIsTyping] = useState(false)
-    const [isOnline, setIsOnline] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [isSending, setIsSending] = useState(false)
+    const [isOnline] = useState(true) // Assume admin is online by default
     const listRef = useRef(null)
     const me = useMemo(() => authService.getUserFromStorage(), [])
 
@@ -31,63 +32,29 @@ const ChatWidget = () => {
     useEffect(() => {
         if (!isOpen || !adminUser) return
 
-        const socket = getChatSocket()
-        const with_user_id = adminUser?.id || adminUser?._id
+        const loadConversation = async () => {
+            try {
+                setIsLoading(true)
+                const with_user_id = adminUser?.id || adminUser?._id
 
-        // Query presence once on open
-        socket.emit("presence:get")
-        const handlePresenceList = ({ user_ids }) => {
-            setIsOnline(
-                Array.isArray(user_ids) &&
-                    user_ids.includes(String(with_user_id))
-            )
-        }
-        socket.on("presence:list", handlePresenceList)
-        // Live presence updates
-        const handlePresenceUpdate = ({ user_id, online }) => {
-            if (String(user_id) === String(with_user_id)) setIsOnline(!!online)
-        }
-        socket.on("user:online", handlePresenceUpdate)
+                // Load chat history
+                const historyResponse =
+                    await messageService.getConversationHistory(with_user_id)
+                if (historyResponse.success) {
+                    setMessages(historyResponse.data.messages)
+                }
 
-        // Load chat history
-        socket.emit("conversation:history", { with_user_id })
-
-        // Mark conversation as seen
-        socket.emit("conversation:seen", { with_user_id })
-
-        const handleHistory = ({ with_user_id: id, messages }) => {
-            if (id === with_user_id) setMessages(messages)
-        }
-
-        const handleNewMessage = (msg) => {
-            const conversation_id = [me?.id || me?._id, with_user_id]
-                .map(String)
-                .sort()
-                .join(":")
-            if (msg.conversation_id === conversation_id) {
-                setMessages((prev) => [...prev, { ...msg, _animate: true }])
-                setIsTyping(false)
+                // Mark conversation as seen
+                await messageService.markConversationAsSeen(with_user_id)
+            } catch (error) {
+                console.error("Error loading conversation:", error)
+            } finally {
+                setIsLoading(false)
             }
         }
 
-        const handleTyping = ({ from_user_id, is_typing }) => {
-            if (from_user_id === with_user_id) {
-                setIsTyping(is_typing)
-            }
-        }
-
-        socket.on("conversation:history:result", handleHistory)
-        socket.on("message:new", handleNewMessage)
-        socket.on("user:typing", handleTyping)
-
-        return () => {
-            socket.off("presence:list", handlePresenceList)
-            socket.off("user:online", handlePresenceUpdate)
-            socket.off("conversation:history:result", handleHistory)
-            socket.off("message:new", handleNewMessage)
-            socket.off("user:typing", handleTyping)
-        }
-    }, [isOpen, adminUser, me])
+        loadConversation()
+    }, [isOpen, adminUser])
 
     useEffect(() => {
         if (listRef.current) {
@@ -95,51 +62,55 @@ const ChatWidget = () => {
         }
     }, [messages])
 
+    // Polling for new messages every 5 seconds when chat is open
     useEffect(() => {
-        if (!isOpen) return
+        if (!isOpen || !adminUser) return
 
-        const socket = getChatSocket()
-        let typingTimeout
+        const pollInterval = setInterval(async () => {
+            try {
+                const with_user_id = adminUser?.id || adminUser?._id
+                const historyResponse =
+                    await messageService.getConversationHistory(with_user_id)
 
-        // Show typing indicator when user types
-        const showTyping = () => {
-            socket.emit("user:typing", {
-                to_user_id: adminUser?.id || adminUser?._id,
-                is_typing: true,
-            })
-
-            clearTimeout(typingTimeout)
-            typingTimeout = setTimeout(() => {
-                socket.emit("user:typing", {
-                    to_user_id: adminUser?.id || adminUser?._id,
-                    is_typing: false,
-                })
-            }, 1000)
-        }
-
-        // Add event listener to input
-        const inputElement = document.querySelector(
-            'input[placeholder="Tulis pesan..."]'
-        )
-        if (inputElement) {
-            inputElement.addEventListener("input", showTyping)
-        }
-
-        return () => {
-            clearTimeout(typingTimeout)
-            if (inputElement) {
-                inputElement.removeEventListener("input", showTyping)
+                if (historyResponse.success) {
+                    const newMessages = historyResponse.data.messages
+                    setMessages((prev) => {
+                        // Check if there are new messages
+                        if (newMessages.length > prev.length) {
+                            return newMessages
+                        }
+                        return prev
+                    })
+                }
+            } catch (error) {
+                console.error("Error polling for new messages:", error)
             }
-        }
+        }, 5000) // Poll every 5 seconds
+
+        return () => clearInterval(pollInterval)
     }, [isOpen, adminUser])
 
-    const sendMessage = () => {
-        if (!input.trim() || !adminUser) return
+    const sendMessage = async () => {
+        if (!input.trim() || !adminUser || isSending) return
 
-        const socket = getChatSocket()
-        const to_user_id = adminUser?.id || adminUser?._id
-        socket.emit("message:send", { to_user_id, content: input.trim() })
-        setInput("")
+        try {
+            setIsSending(true)
+            const to_user_id = adminUser?.id || adminUser?._id
+            const response = await messageService.sendMessage(
+                to_user_id,
+                input.trim()
+            )
+
+            if (response.success) {
+                // Add the new message to the list
+                setMessages((prev) => [...prev, response.data])
+                setInput("")
+            }
+        } catch (error) {
+            console.error("Error sending message:", error)
+        } finally {
+            setIsSending(false)
+        }
     }
 
     const formatTime = (dateString) => {
@@ -157,6 +128,9 @@ const ChatWidget = () => {
     }
 
     if (!me) return null
+
+    // Only show chat widget for non-admin users
+    if (me.is_admin) return null
 
     return (
         <div className="fixed bottom-3 right-3 z-50">
@@ -291,29 +265,10 @@ const ChatWidget = () => {
                             })
                         )}
 
-                        {/* Typing Indicator */}
-                        {isTyping && (
-                            <div className="flex justify-start animate-fade-in-up">
-                                <div className="bg-gray-100 text-gray-800 px-3 py-2 rounded-lg text-sm">
-                                    <div className="flex items-center gap-1">
-                                        <span>Admin sedang mengetik</span>
-                                        <div className="flex gap-1">
-                                            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
-                                            <div
-                                                className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
-                                                style={{
-                                                    animationDelay: "0.1s",
-                                                }}
-                                            ></div>
-                                            <div
-                                                className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
-                                                style={{
-                                                    animationDelay: "0.2s",
-                                                }}
-                                            ></div>
-                                        </div>
-                                    </div>
-                                </div>
+                        {/* Loading Indicator */}
+                        {isLoading && (
+                            <div className="flex justify-center py-4">
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                             </div>
                         )}
                     </div>
@@ -333,10 +288,14 @@ const ChatWidget = () => {
                             />
                             <button
                                 onClick={sendMessage}
-                                disabled={!input.trim()}
+                                disabled={!input.trim() || isSending}
                                 className="btn-gradient disabled:bg-gray-400 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed"
                             >
-                                Kirim
+                                {isSending ? (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                ) : (
+                                    "Kirim"
+                                )}
                             </button>
                         </div>
                     </div>

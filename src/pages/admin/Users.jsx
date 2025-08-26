@@ -87,11 +87,19 @@ const Users = () => {
 
     const confirmDelete = async () => {
         try {
-            // Implement delete user logic here
-            console.log("Deleting user:", deletingUserId)
-            await loadUsers()
+            const response = await userService.deleteUser(deletingUserId)
+            if (response.success) {
+                showToast(
+                    response.message || "User berhasil dihapus",
+                    "success"
+                )
+                await loadUsers() // Reload the users list
+            } else {
+                showToast(response.message || "Gagal menghapus user", "error")
+            }
         } catch (error) {
             console.error("Error deleting user:", error)
+            showToast(error.message || "Gagal menghapus user", "error")
         } finally {
             setConfirmOpen(false)
             setDeletingUserId(null)

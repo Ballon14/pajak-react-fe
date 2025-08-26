@@ -31,7 +31,6 @@ const AdminTaxRecords = () => {
 
     const handleDeleteRecord = (recordId) => {
         // TODO: Implement delete functionality
-        console.log("Delete record:", recordId)
     }
 
     // Calculate counts for filter buttons
@@ -226,7 +225,7 @@ const AdminTaxRecords = () => {
                                             <button
                                                 onClick={() =>
                                                     navigate(
-                                                        `/admin/tax-records/edit/${record.id}`
+                                                        `/admin/tax-records/${record.id}/edit`
                                                     )
                                                 }
                                                 className="p-1.5 sm:p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-colors"
@@ -418,7 +417,7 @@ const AdminTaxRecords = () => {
                                                     <button
                                                         onClick={() =>
                                                             navigate(
-                                                                `/admin/tax-records/edit/${record.id}`
+                                                                `/admin/tax-records/${record.id}/edit`
                                                             )
                                                         }
                                                         className="p-1.5 sm:p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-colors"

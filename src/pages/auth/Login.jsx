@@ -36,7 +36,7 @@ const Login = () => {
 
         try {
             const response = await authService.login(data)
-            console.log("Login response:", response)
+
 
             if (response.success) {
                 authService.setToken(response.data.token)

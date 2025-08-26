@@ -52,7 +52,6 @@ const AddTaxRecord = () => {
             }
 
             const response = await taxRecordService.create(submitData)
-            console.log("Create response:", response)
 
             if (response.success) {
                 showToast("Data PBB berhasil ditambahkan!", "success")
@@ -87,82 +86,92 @@ const AddTaxRecord = () => {
 
     return (
         <Layout>
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
+                        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
                             Tambah Data PBB
                         </h1>
-                        <p className="text-gray-600">
+                        <p className="text-sm sm:text-base text-gray-600">
                             Isi form di bawah untuk menambahkan data Pajak Bumi
                             dan Bangunan (PBB) baru
                         </p>
                     </div>
                     <button
                         onClick={handleCancel}
-                        className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200"
+                        className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 text-sm sm:text-base"
                     >
-                        Batal
+                        Kembali
                     </button>
                 </div>
 
                 {/* Form */}
-                <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                <div className="bg-white rounded-xl shadow-lg border border-gray-100">
                     <form
                         onSubmit={handleSubmit(onSubmit)}
-                        className="space-y-6"
+                        className="p-4 sm:p-6 space-y-4 sm:space-y-6"
                     >
                         {/* Basic Information */}
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                                Informasi Wajib Pajak
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+                                Informasi Dasar
                             </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Nama Lengkap
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                        Nama Pemilik{" "}
+                                        <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         {...register("name")}
                                         type="text"
-                                        placeholder="Masukkan nama lengkap"
-                                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                                        placeholder="Nama pemilik properti"
+                                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm ${
                                             errors.name
                                                 ? "border-red-500"
                                                 : "border-gray-300"
                                         }`}
                                     />
                                     {errors.name && (
-                                        <p className="mt-1 text-sm text-red-600">
+                                        <p className="mt-1 text-xs sm:text-sm text-red-600">
                                             {errors.name.message}
                                         </p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Alamat
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                        Alamat{" "}
+                                        <span className="text-red-500">*</span>
                                     </label>
-                                    <textarea
+                                    <input
                                         {...register("address")}
-                                        placeholder="Masukkan alamat lengkap"
-                                        rows="3"
-                                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                                        type="text"
+                                        placeholder="Alamat properti"
+                                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm ${
                                             errors.address
                                                 ? "border-red-500"
                                                 : "border-gray-300"
                                         }`}
                                     />
                                     {errors.address && (
-                                        <p className="mt-1 text-sm text-red-600">
+                                        <p className="mt-1 text-xs sm:text-sm text-red-600">
                                             {errors.address.message}
                                         </p>
                                     )}
                                 </div>
+                            </div>
+                        </div>
 
+                        {/* Tax Information */}
+                        <div>
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+                                Informasi Pajak
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                                         Jenis Pajak
                                     </label>
                                     <input
@@ -170,36 +179,37 @@ const AddTaxRecord = () => {
                                         type="text"
                                         value="PBB"
                                         readOnly
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                                        className="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-xs sm:text-sm"
                                     />
-                                    <p className="mt-1 text-sm text-gray-500">
+                                    <p className="mt-1 text-xs sm:text-sm text-gray-500">
                                         Pajak Bumi dan Bangunan
                                     </p>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Nomor SPPT
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                        Nomor SPT{" "}
+                                        <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         {...register("spt_number")}
                                         type="text"
-                                        placeholder="Contoh: SPPT-2024-001"
-                                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                                        placeholder="Nomor SPT"
+                                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm ${
                                             errors.spt_number
                                                 ? "border-red-500"
                                                 : "border-gray-300"
                                         }`}
                                     />
                                     {errors.spt_number && (
-                                        <p className="mt-1 text-sm text-red-600">
+                                        <p className="mt-1 text-xs sm:text-sm text-red-600">
                                             {errors.spt_number.message}
                                         </p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                                         Tahun
                                     </label>
                                     <input
@@ -207,9 +217,9 @@ const AddTaxRecord = () => {
                                         type="text"
                                         value="2025"
                                         readOnly
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                                        className="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-xs sm:text-sm"
                                     />
-                                    <p className="mt-1 text-sm text-gray-500">
+                                    <p className="mt-1 text-xs sm:text-sm text-gray-500">
                                         Tahun Pajak 2025
                                     </p>
                                 </div>
@@ -218,12 +228,12 @@ const AddTaxRecord = () => {
 
                         {/* Amount and Status */}
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
                                 Jumlah dan Status
                             </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                                         Jumlah PBB (Rp){" "}
                                         <span className="text-red-500">*</span>
                                     </label>
@@ -231,26 +241,26 @@ const AddTaxRecord = () => {
                                         {...register("amount")}
                                         type="text"
                                         placeholder="0"
-                                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm ${
                                             errors.amount
                                                 ? "border-red-500"
                                                 : "border-gray-300"
                                         }`}
                                     />
                                     {errors.amount && (
-                                        <p className="mt-1 text-sm text-red-600">
+                                        <p className="mt-1 text-xs sm:text-sm text-red-600">
                                             {errors.amount.message}
                                         </p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                                         Status Pembayaran
                                     </label>
                                     <select
                                         {...register("status")}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm"
                                     >
                                         <option value="belum_lunas">
                                             Belum Lunas
@@ -259,7 +269,7 @@ const AddTaxRecord = () => {
                                         <option value="lunas">Lunas</option>
                                     </select>
                                     {errors.status && (
-                                        <p className="mt-1 text-sm text-red-600">
+                                        <p className="mt-1 text-xs sm:text-sm text-red-600">
                                             {errors.status.message}
                                         </p>
                                     )}
@@ -269,39 +279,39 @@ const AddTaxRecord = () => {
 
                         {/* Dates */}
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
                                 Tanggal
                             </h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                                         Tanggal Jatuh Tempo{" "}
                                         <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         {...register("due_date")}
                                         type="date"
-                                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                                        className={`w-full px-2 sm:px-3 py-1.5 sm:py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm ${
                                             errors.due_date
                                                 ? "border-red-500"
                                                 : "border-gray-300"
                                         }`}
                                     />
                                     {errors.due_date && (
-                                        <p className="mt-1 text-sm text-red-600">
+                                        <p className="mt-1 text-xs sm:text-sm text-red-600">
                                             {errors.due_date.message}
                                         </p>
                                     )}
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                                         Tanggal Pembayaran
                                     </label>
                                     <input
                                         {...register("payment_date")}
                                         type="date"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm"
                                     />
                                 </div>
                             </div>
@@ -309,49 +319,49 @@ const AddTaxRecord = () => {
 
                         {/* Description and Notes */}
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
                                 Keterangan
                             </h3>
-                            <div className="space-y-4">
+                            <div className="space-y-3 sm:space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                                         Deskripsi
                                     </label>
                                     <input
                                         {...register("description")}
                                         type="text"
                                         placeholder="Deskripsi singkat tentang pajak ini"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                                         Catatan
                                     </label>
                                     <textarea
                                         {...register("notes")}
                                         rows={4}
                                         placeholder="Catatan tambahan (opsional)"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                        className="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none text-xs sm:text-sm"
                                     />
                                 </div>
                             </div>
                         </div>
 
                         {/* Submit Buttons */}
-                        <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                        <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200">
                             <button
                                 type="button"
                                 onClick={handleCancel}
-                                className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+                                className="px-4 sm:px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200 text-sm sm:text-base"
                             >
                                 Batal
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2"
+                                className="px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 text-sm sm:text-base"
                             >
                                 {loading ? (
                                     <>
@@ -361,7 +371,7 @@ const AddTaxRecord = () => {
                                 ) : (
                                     <>
                                         <svg
-                                            className="w-5 h-5"
+                                            className="w-4 h-4 sm:w-5 sm:h-5"
                                             fill="none"
                                             stroke="currentColor"
                                             viewBox="0 0 24 24"
