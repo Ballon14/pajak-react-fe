@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { Layout, Toast } from "../../components/ui"
 import { taxRecordService } from "../../services/taxRecordService"
+import { getImageURL } from "../../utils/imageUtils"
 
 const EditTaxRecord = () => {
     const navigate = useNavigate()
@@ -9,6 +10,9 @@ const EditTaxRecord = () => {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [toast, setToast] = useState(null)
+    const [selectedFile, setSelectedFile] = useState(null)
+    const [previewUrl, setPreviewUrl] = useState(null)
+    const [existingPaymentProof, setExistingPaymentProof] = useState(null)
 
     const [formData, setFormData] = useState({
         name: "",
@@ -74,6 +78,11 @@ const EditTaxRecord = () => {
                         : "",
                     notes: recordData.notes || "",
                 })
+
+                // Set existing payment proof if available
+                if (recordData.payment_proof) {
+                    setExistingPaymentProof(recordData.payment_proof)
+                }
             } else {
                 console.error("❌ Invalid response:", response)
                 showToast("Data PBB tidak ditemukan", "error")
@@ -105,6 +114,23 @@ const EditTaxRecord = () => {
         }))
     }
 
+    const handleFileChange = (event) => {
+        const file = event.target.files[0]
+        if (file) {
+            setSelectedFile(file)
+            const reader = new FileReader()
+            reader.onload = () => {
+                setPreviewUrl(reader.result)
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const removeFile = () => {
+        setSelectedFile(null)
+        setPreviewUrl(null)
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         setSaving(true)
@@ -134,14 +160,36 @@ const EditTaxRecord = () => {
                 return
             }
 
+            // Helper function to format date safely
+            const formatDate = (dateString) => {
+                if (!dateString) return null
+                // If it's already in YYYY-MM-DD format, return as is
+                if (
+                    typeof dateString === "string" &&
+                    dateString.match(/^\d{4}-\d{2}-\d{2}$/)
+                ) {
+                    return dateString
+                }
+                // Otherwise, parse and format
+                const date = new Date(dateString)
+                if (isNaN(date.getTime())) return null
+                return date.toISOString().split("T")[0]
+            }
+
             const updateData = {
                 ...formData,
                 tax_type: "PBB",
                 amount: amountValue,
                 year: 2025,
+                due_date: formatDate(formData.due_date),
+                payment_date: formatDate(formData.payment_date),
             }
 
-            const response = await taxRecordService.update(id, updateData)
+            const response = await taxRecordService.update(
+                id,
+                updateData,
+                selectedFile
+            )
 
             if (response.success) {
                 showToast("Data PBB berhasil diperbarui", "success")
@@ -399,6 +447,73 @@ const EditTaxRecord = () => {
                                     onChange={handleInputChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 />
+                            </div>
+                        </div>
+
+                        {/* Payment Proof Upload */}
+                        <div>
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+                                Bukti Pembayaran
+                            </h3>
+                            <div className="space-y-3 sm:space-y-4">
+                                <div>
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                        Foto Bukti Pembayaran
+                                    </label>
+                                    <div className="space-y-2">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            className="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm"
+                                        />
+                                        <p className="text-xs sm:text-sm text-gray-500">
+                                            Format: JPG, PNG, GIF. Maksimal 5MB
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Existing Payment Proof */}
+                                {existingPaymentProof && !previewUrl && (
+                                    <div className="space-y-2">
+                                        <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                                            Bukti Pembayaran Saat Ini:
+                                        </label>
+                                        <div className="relative inline-block">
+                                            <img
+                                                src={getImageURL(
+                                                    existingPaymentProof
+                                                )}
+                                                alt="Bukti pembayaran saat ini"
+                                                crossOrigin="anonymous"
+                                                className="max-w-xs max-h-48 rounded-lg border border-gray-300"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* New File Preview */}
+                                {previewUrl && (
+                                    <div className="space-y-2">
+                                        <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                                            Preview File Baru:
+                                        </label>
+                                        <div className="relative inline-block">
+                                            <img
+                                                src={previewUrl}
+                                                alt="Preview bukti pembayaran"
+                                                className="max-w-xs max-h-48 rounded-lg border border-gray-300"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={removeFile}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

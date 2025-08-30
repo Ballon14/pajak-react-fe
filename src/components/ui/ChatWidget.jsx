@@ -2,6 +2,17 @@ import React, { useEffect, useMemo, useRef, useState } from "react"
 import { authService } from "../../services/authService"
 import { userService } from "../../services/userService"
 import { messageService } from "../../services/messageService"
+import {
+    formatChatDate,
+    isSameDay,
+    getDateSeparator,
+} from "../../utils/dateUtils"
+import {
+    initializeNotifications,
+    showNewMessageNotification,
+    resetPageTitle,
+} from "../../utils/notificationUtils"
+import Toast from "./Toast"
 
 const ChatWidget = () => {
     const [isOpen, setIsOpen] = useState(false)
@@ -13,19 +24,45 @@ const ChatWidget = () => {
     const [isOnline] = useState(true) // Assume admin is online by default
     const listRef = useRef(null)
     const me = useMemo(() => authService.getUserFromStorage(), [])
+    const [lastMessageId, setLastMessageId] = useState(null)
+    const [toast, setToast] = useState(null)
 
     useEffect(() => {
         let mounted = true
         ;(async () => {
             try {
                 const res = await userService.getAdminContact()
-                if (mounted) setAdminUser(res?.data || null)
+
+                if (mounted) {
+                    setAdminUser(res?.data || null)
+                }
+
+                // Initialize notifications
+                await initializeNotifications()
             } catch (e) {
-                console.error(e)
+                console.error("Error loading admin contact:", e)
             }
         })()
         return () => {
             mounted = false
+        }
+    }, [])
+
+    // Reset page title when user focuses on the page
+    useEffect(() => {
+        const handleFocus = () => {
+            resetPageTitle()
+        }
+
+        window.addEventListener("focus", handleFocus)
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) {
+                resetPageTitle()
+            }
+        })
+
+        return () => {
+            window.removeEventListener("focus", handleFocus)
         }
     }, [])
 
@@ -41,7 +78,15 @@ const ChatWidget = () => {
                 const historyResponse =
                     await messageService.getConversationHistory(with_user_id)
                 if (historyResponse.success) {
-                    setMessages(historyResponse.data.messages)
+                    const newMessages = historyResponse.data.messages
+                    setMessages(newMessages)
+
+                    // Set last message ID for notification tracking
+                    if (newMessages.length > 0) {
+                        setLastMessageId(
+                            newMessages[newMessages.length - 1]._id
+                        )
+                    }
                 }
 
                 // Mark conversation as seen
@@ -64,7 +109,7 @@ const ChatWidget = () => {
 
     // Polling for new messages every 5 seconds when chat is open
     useEffect(() => {
-        if (!isOpen || !adminUser) return
+        if (!adminUser) return
 
         const pollInterval = setInterval(async () => {
             try {
@@ -77,6 +122,36 @@ const ChatWidget = () => {
                     setMessages((prev) => {
                         // Check if there are new messages
                         if (newMessages.length > prev.length) {
+                            // Check for new messages and show notifications
+                            const newMessageIds = newMessages.map((m) => m._id)
+                            const prevMessageIds = prev.map((m) => m._id)
+
+                            // Find messages that are new
+                            newMessages.forEach((message) => {
+                                if (
+                                    !prevMessageIds.includes(message._id) &&
+                                    String(message.sender_id) !==
+                                        String(me.id || me._id)
+                                ) {
+                                    // Show notification for new message from admin
+                                    showNewMessageNotification(
+                                        adminUser?.name || "Admin",
+                                        message.content,
+                                        true
+                                    )
+
+                                    // Show in-app toast notification only if chat is not open
+                                    if (!isOpen) {
+                                        setToast({
+                                            message: `Pesan baru dari ${
+                                                adminUser?.name || "Admin"
+                                            }`,
+                                            type: "info",
+                                        })
+                                    }
+                                }
+                            })
+
                             return newMessages
                         }
                         return prev
@@ -88,7 +163,64 @@ const ChatWidget = () => {
         }, 5000) // Poll every 5 seconds
 
         return () => clearInterval(pollInterval)
-    }, [isOpen, adminUser])
+    }, [adminUser, isOpen])
+
+    // Continuous polling for unread messages (even when chat is closed)
+    useEffect(() => {
+        if (!adminUser) return
+
+        const pollInterval = setInterval(async () => {
+            try {
+                const with_user_id = adminUser?.id || adminUser?._id
+                const historyResponse =
+                    await messageService.getConversationHistory(with_user_id)
+
+                if (historyResponse.success) {
+                    const newMessages = historyResponse.data.messages
+
+                    // Check if there are new messages compared to last known state
+                    if (lastMessageId && newMessages.length > 0) {
+                        const lastMessage = newMessages[newMessages.length - 1]
+
+                        // If we have a new message and it's not from us
+                        if (
+                            lastMessage._id !== lastMessageId &&
+                            String(lastMessage.sender_id) !==
+                                String(me.id || me._id)
+                        ) {
+                            // Show notification for new message
+                            showNewMessageNotification(
+                                adminUser?.name || "Admin",
+                                lastMessage.content,
+                                true
+                            )
+
+                            // Show toast only if chat is not open
+                            if (!isOpen) {
+                                setToast({
+                                    message: `Pesan baru dari ${
+                                        adminUser?.name || "Admin"
+                                    }`,
+                                    type: "info",
+                                })
+                            }
+                        }
+                    }
+
+                    // Update last message ID
+                    if (newMessages.length > 0) {
+                        setLastMessageId(
+                            newMessages[newMessages.length - 1]._id
+                        )
+                    }
+                }
+            } catch (error) {
+                console.error("Error polling for unread messages:", error)
+            }
+        }, 3000) // Poll every 3 seconds for unread messages
+
+        return () => clearInterval(pollInterval)
+    }, [adminUser, lastMessageId, isOpen])
 
     const sendMessage = async () => {
         if (!input.trim() || !adminUser || isSending) return
@@ -96,6 +228,7 @@ const ChatWidget = () => {
         try {
             setIsSending(true)
             const to_user_id = adminUser?.id || adminUser?._id
+
             const response = await messageService.sendMessage(
                 to_user_id,
                 input.trim()
@@ -105,26 +238,39 @@ const ChatWidget = () => {
                 // Add the new message to the list
                 setMessages((prev) => [...prev, response.data])
                 setInput("")
+            } else {
+                console.error("Message send failed:", response)
+                setToast({
+                    message: response.message || "Gagal mengirim pesan",
+                    type: "error",
+                })
             }
         } catch (error) {
             console.error("Error sending message:", error)
+            setToast({
+                message: error.message || "Gagal mengirim pesan",
+                type: "error",
+            })
         } finally {
             setIsSending(false)
         }
     }
 
-    const formatTime = (dateString) => {
-        const date = new Date(dateString)
-        const diffMs = Date.now() - date.getTime()
-        const diffMin = Math.floor(diffMs / 60000)
-        if (diffMin < 60) {
-            if (diffMin <= 0) return "baru saja"
-            return `${diffMin} menit lalu`
+    const handleOpenChat = () => {
+        setIsOpen(true)
+
+        // Show notification that chat is ready
+        if (messages.length === 0) {
+            setToast({
+                message:
+                    "Chat siap! Anda akan mendapat notifikasi untuk pesan baru.",
+                type: "info",
+            })
         }
-        return date.toLocaleTimeString("id-ID", {
-            hour: "2-digit",
-            minute: "2-digit",
-        })
+    }
+
+    const formatTime = (dateString) => {
+        return formatChatDate(dateString)
     }
 
     if (!me) return null
@@ -135,7 +281,7 @@ const ChatWidget = () => {
     return (
         <div className="fixed bottom-3 right-3 z-50">
             {isOpen ? (
-                <div className="w-[92vw] max-w-sm sm:max-w-md md:max-w-md bg-white shadow-2xl rounded-xl border border-gray-200 flex flex-col sm:w-80 max-h-[80vh] sm:max-h-[420px] animate-fade-in-up">
+                <div className="chat-container w-[92vw] max-w-sm sm:max-w-md md:max-w-md bg-white shadow-2xl rounded-xl border border-gray-200 flex flex-col sm:w-80 max-h-[80vh] sm:max-h-[420px] animate-fade-in-up">
                     {/* Chat Header */}
                     <div className="px-4 py-3 border-b bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-xl">
                         <div className="flex items-center justify-between">
@@ -214,53 +360,72 @@ const ChatWidget = () => {
                                 </p>
                             </div>
                         ) : (
-                            messages.map((m) => {
+                            messages.map((m, index) => {
                                 const mine =
                                     String(m.sender_id) ===
                                     String(me.id || me._id)
+
+                                // Check if we need to show date separator
+                                const showDateSeparator =
+                                    index === 0 ||
+                                    !isSameDay(
+                                        m.createdAt,
+                                        messages[index - 1].createdAt
+                                    )
+
                                 return (
-                                    <div
-                                        key={m._id}
-                                        className={`flex items-end ${
-                                            mine
-                                                ? "justify-end"
-                                                : "justify-start"
-                                        } gap-2`}
-                                    >
-                                        {!mine && (
-                                            <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white flex items-center justify-center text-[10px] font-semibold shadow">
-                                                {adminUser?.name
-                                                    ?.charAt(0)
-                                                    ?.toUpperCase() || "A"}
+                                    <React.Fragment key={m._id}>
+                                        {showDateSeparator && (
+                                            <div className="flex justify-center my-4">
+                                                <div className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">
+                                                    {getDateSeparator(
+                                                        m.createdAt
+                                                    )}
+                                                </div>
                                             </div>
                                         )}
                                         <div
-                                            className={`relative max-w-[85%] px-3 py-2 rounded-2xl shadow ${
+                                            className={`flex items-end ${
                                                 mine
-                                                    ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white"
-                                                    : "bg-white border border-gray-200 text-gray-800"
-                                            } animate-fade-in-up`}
+                                                    ? "justify-end"
+                                                    : "justify-start"
+                                            } gap-2`}
                                         >
-                                            <div>{m.content}</div>
+                                            {!mine && (
+                                                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white flex items-center justify-center text-[10px] font-semibold shadow">
+                                                    {adminUser?.name
+                                                        ?.charAt(0)
+                                                        ?.toUpperCase() || "A"}
+                                                </div>
+                                            )}
                                             <div
-                                                className={`mt-1 text-[10px] text-right ${
+                                                className={`relative max-w-[85%] px-3 py-2 rounded-2xl shadow ${
                                                     mine
-                                                        ? "text-blue-100"
-                                                        : "text-gray-500"
-                                                }`}
+                                                        ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white"
+                                                        : "bg-white border border-gray-200 text-gray-800"
+                                                } animate-fade-in-up`}
                                             >
-                                                {formatTime(m.createdAt)}
+                                                <div>{m.content}</div>
+                                                <div
+                                                    className={`mt-1 text-[10px] text-right ${
+                                                        mine
+                                                            ? "text-blue-100"
+                                                            : "text-gray-500"
+                                                    }`}
+                                                >
+                                                    {formatTime(m.createdAt)}
+                                                </div>
+                                                {mine ? (
+                                                    <span className="absolute -right-1 bottom-2 w-2 h-2 rotate-45 bg-indigo-600"></span>
+                                                ) : (
+                                                    <span className="absolute -left-1 bottom-2 w-2 h-2 rotate-45 bg-white border-l border-b border-gray-200"></span>
+                                                )}
                                             </div>
-                                            {mine ? (
-                                                <span className="absolute -right-1 bottom-2 w-2 h-2 rotate-45 bg-indigo-600"></span>
-                                            ) : (
-                                                <span className="absolute -left-1 bottom-2 w-2 h-2 rotate-45 bg-white border-l border-b border-gray-200"></span>
+                                            {mine && (
+                                                <div className="w-6 h-6"></div>
                                             )}
                                         </div>
-                                        {mine && (
-                                            <div className="w-6 h-6"></div>
-                                        )}
-                                    </div>
+                                    </React.Fragment>
                                 )
                             })
                         )}
@@ -302,7 +467,7 @@ const ChatWidget = () => {
                 </div>
             ) : (
                 <button
-                    onClick={() => setIsOpen(true)}
+                    onClick={handleOpenChat}
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full w-14 h-14 shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center animate-float"
                 >
                     <svg
@@ -319,6 +484,15 @@ const ChatWidget = () => {
                         />
                     </svg>
                 </button>
+            )}
+
+            {/* Toast Notification */}
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
             )}
         </div>
     )

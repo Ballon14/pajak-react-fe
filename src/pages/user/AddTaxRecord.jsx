@@ -12,12 +12,58 @@ const schema = yup
         address: yup.string().required("Alamat wajib diisi"),
         tax_type: yup.string().required("Jenis pajak wajib diisi"),
         spt_number: yup.string().required("Nomor SPT wajib diisi"),
-        year: yup.number().required("Tahun wajib diisi"),
-        amount: yup.number().required("Jumlah wajib diisi"),
+        year: yup
+            .number()
+            .transform((value) => (isNaN(value) ? undefined : value))
+            .required("Tahun wajib diisi"),
+        amount: yup
+            .number()
+            .transform((value) => (isNaN(value) ? undefined : value))
+            .required("Jumlah wajib diisi"),
         description: yup.string(),
         status: yup.string().required("Status wajib diisi"),
-        due_date: yup.date(),
-        payment_date: yup.date(),
+        due_date: yup
+            .string()
+            .nullable()
+            .transform((value) => {
+                if (!value) return null
+                // If it's already in YYYY-MM-DD format, return as is
+                if (
+                    typeof value === "string" &&
+                    value.match(/^\d{4}-\d{2}-\d{2}$/)
+                ) {
+                    return value
+                }
+                // Try to parse and format
+                try {
+                    const date = new Date(value)
+                    if (isNaN(date.getTime())) return null
+                    return date.toISOString().split("T")[0]
+                } catch {
+                    return null
+                }
+            }),
+        payment_date: yup
+            .string()
+            .nullable()
+            .transform((value) => {
+                if (!value) return null
+                // If it's already in YYYY-MM-DD format, return as is
+                if (
+                    typeof value === "string" &&
+                    value.match(/^\d{4}-\d{2}-\d{2}$/)
+                ) {
+                    return value
+                }
+                // Try to parse and format
+                try {
+                    const date = new Date(value)
+                    if (isNaN(date.getTime())) return null
+                    return date.toISOString().split("T")[0]
+                } catch {
+                    return null
+                }
+            }),
         notes: yup.string(),
     })
     .required()
@@ -25,6 +71,8 @@ const schema = yup
 const AddTaxRecord = () => {
     const [loading, setLoading] = useState(false)
     const [toast, setToast] = useState(null)
+    const [selectedFile, setSelectedFile] = useState(null)
+    const [previewUrl, setPreviewUrl] = useState(null)
     const navigate = useNavigate()
 
     const {
@@ -40,22 +88,63 @@ const AddTaxRecord = () => {
         setToast({ message, type })
     }
 
+    const handleFileChange = (event) => {
+        const file = event.target.files[0]
+        if (file) {
+            setSelectedFile(file)
+            const reader = new FileReader()
+            reader.onload = () => {
+                setPreviewUrl(reader.result)
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const removeFile = () => {
+        setSelectedFile(null)
+        setPreviewUrl(null)
+    }
+
     const onSubmit = async (data) => {
         setLoading(true)
 
         try {
+            // Helper function to format date safely
+            const formatDate = (dateString) => {
+                if (!dateString) return null
+                // If it's already in YYYY-MM-DD format, return as is
+                if (
+                    typeof dateString === "string" &&
+                    dateString.match(/^\d{4}-\d{2}-\d{2}$/)
+                ) {
+                    return dateString
+                }
+                // Otherwise, parse and format
+                const date = new Date(dateString)
+                if (isNaN(date.getTime())) return null
+                return date.toISOString().split("T")[0]
+            }
+
             // Ensure tax_type is PBB and year is 2025
             const submitData = {
                 ...data,
                 tax_type: "PBB",
                 year: 2025,
+                amount: parseFloat(data.amount) || 0,
+                due_date: formatDate(data.due_date),
+                payment_date: formatDate(data.payment_date),
             }
 
-            const response = await taxRecordService.create(submitData)
+            const response = await taxRecordService.create(
+                submitData,
+                selectedFile
+            )
 
             if (response.success) {
                 showToast("Data PBB berhasil ditambahkan!", "success")
                 reset()
+                setSelectedFile(null)
+                setPreviewUrl(null)
                 setTimeout(() => {
                     navigate("/tax-records")
                 }, 1500)
@@ -274,6 +363,53 @@ const AddTaxRecord = () => {
                                         </p>
                                     )}
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Payment Proof Upload */}
+                        <div>
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+                                Bukti Pembayaran
+                            </h3>
+                            <div className="space-y-3 sm:space-y-4">
+                                <div>
+                                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                        Foto Bukti Pembayaran
+                                    </label>
+                                    <div className="space-y-2">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            className="w-full px-2 sm:px-3 py-1.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs sm:text-sm"
+                                        />
+                                        <p className="text-xs sm:text-sm text-gray-500">
+                                            Format: JPG, PNG, GIF. Maksimal 5MB
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {previewUrl && (
+                                    <div className="space-y-2">
+                                        <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                                            Preview:
+                                        </label>
+                                        <div className="relative inline-block">
+                                            <img
+                                                src={previewUrl}
+                                                alt="Preview bukti pembayaran"
+                                                className="max-w-xs max-h-48 rounded-lg border border-gray-300"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={removeFile}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

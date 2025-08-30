@@ -7,8 +7,13 @@ export const userService = {
     },
 
     async getAdminContact() {
-        const response = await api.get("/auth/admin-contact")
-        return response.data
+        try {
+            const response = await api.get("/auth/admin-contact")
+            return response.data
+        } catch (error) {
+            console.error("userService.getAdminContact error:", error)
+            throw error
+        }
     },
 
     async createUser(userData) {

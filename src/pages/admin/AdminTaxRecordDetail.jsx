@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { AdminLayout, Toast } from "../../components/ui"
 import { authService } from "../../services/authService"
 import { taxRecordService } from "../../services/taxRecordService"
+import { getImageURL } from "../../utils/imageUtils"
 
 const AdminTaxRecordDetail = () => {
     const { id } = useParams()
@@ -28,6 +29,8 @@ const AdminTaxRecordDetail = () => {
             // Use admin endpoint to get any tax record without user restrictions
             const response = await taxRecordService.getByIdAdmin(id)
             if (response.success) {
+                console.log("Admin received tax record data:", response.data)
+                console.log("Payment proof path:", response.data.payment_proof)
                 setRecord(response.data)
             } else {
                 showToast(
@@ -36,6 +39,7 @@ const AdminTaxRecordDetail = () => {
                 )
             }
         } catch (err) {
+            console.error("Error loading tax record:", err)
             showToast(err.message || "Gagal memuat data pajak", "error")
         } finally {
             setLoading(false)
@@ -326,6 +330,80 @@ const AdminTaxRecordDetail = () => {
                                 </div>
                             )}
                         </div>
+
+                        {/* Payment Proof Section */}
+                        {record.payment_proof && (
+                            <div className="border-t pt-6">
+                                <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">
+                                    Bukti Pembayaran
+                                </h4>
+                                <div className="flex justify-center">
+                                    <div className="relative">
+                                        {(() => {
+                                            const imageURL = getImageURL(
+                                                record.payment_proof
+                                            )
+                                            console.log(
+                                                "Original path:",
+                                                record.payment_proof
+                                            )
+                                            console.log(
+                                                "Generated URL:",
+                                                imageURL
+                                            )
+                                            return (
+                                                <img
+                                                    src={imageURL}
+                                                    alt="Bukti pembayaran PBB"
+                                                    crossOrigin="anonymous"
+                                                    className="max-w-full max-h-96 rounded-lg border border-gray-300 shadow-lg"
+                                                    onError={(e) => {
+                                                        console.error(
+                                                            "Image failed to load:",
+                                                            imageURL
+                                                        )
+                                                        e.target.style.display =
+                                                            "none"
+                                                        e.target.nextSibling.style.display =
+                                                            "block"
+                                                    }}
+                                                    onLoad={() => {
+                                                        console.log(
+                                                            "Image loaded successfully:",
+                                                            imageURL
+                                                        )
+                                                    }}
+                                                />
+                                            )
+                                        })()}
+                                        <div
+                                            className="hidden bg-gray-100 border-2 border-gray-300 rounded-lg p-8 text-center"
+                                            style={{ display: "none" }}
+                                        >
+                                            <svg
+                                                className="w-16 h-16 text-gray-400 mx-auto mb-4"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                />
+                                            </svg>
+                                            <p className="text-gray-500 text-sm font-semibold">
+                                                Bukti Pembayaran
+                                            </p>
+                                            <p className="text-gray-400 text-xs">
+                                                (Gambar tidak dapat ditampilkan)
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {/* User Information */}
                         {record.user && (

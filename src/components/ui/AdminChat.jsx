@@ -4,6 +4,17 @@ import { messageService } from "../../services/messageService"
 import { authService } from "../../services/authService"
 import AdminLayout from "./AdminLayout"
 import ConfirmModal from "./ConfirmModal"
+import {
+    formatChatDate,
+    isSameDay,
+    getDateSeparator,
+} from "../../utils/dateUtils"
+import {
+    initializeNotifications,
+    showNewMessageNotification,
+    resetPageTitle,
+} from "../../utils/notificationUtils"
+import Toast from "./Toast"
 
 const AdminChat = () => {
     const [users, setUsers] = useState([])
@@ -17,11 +28,33 @@ const AdminChat = () => {
     const [confirmOpen, setConfirmOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [isSending, setIsSending] = useState(false)
+    const [toast, setToast] = useState(null)
     const listRef = useRef(null)
     const me = useMemo(() => authService.getUserFromStorage(), [])
 
     useEffect(() => {
         loadUsers()
+
+        // Initialize notifications
+        initializeNotifications()
+    }, [])
+
+    // Reset page title when user focuses on the page
+    useEffect(() => {
+        const handleFocus = () => {
+            resetPageTitle()
+        }
+
+        window.addEventListener("focus", handleFocus)
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) {
+                resetPageTitle()
+            }
+        })
+
+        return () => {
+            window.removeEventListener("focus", handleFocus)
+        }
     }, [])
 
     const loadUsers = async () => {
@@ -68,12 +101,14 @@ const AdminChat = () => {
                 const historyResponse =
                     await messageService.getConversationHistory(with_user_id)
                 if (historyResponse.success) {
+                    const newMessages = historyResponse.data.messages
                     setMessages(
-                        historyResponse.data.messages.map((m) => ({
+                        newMessages.map((m) => ({
                             ...m,
                             _animate: true,
                         }))
                     )
+
                     setTimeout(() => scrollToBottom("auto"), 0)
                 }
 
@@ -105,6 +140,32 @@ const AdminChat = () => {
                     setMessages((prev) => {
                         // Check if there are new messages
                         if (newMessages.length > prev.length) {
+                            // Check for new messages and show notifications
+                            const prevMessageIds = prev.map((m) => m._id)
+
+                            newMessages.forEach((message) => {
+                                if (
+                                    !prevMessageIds.includes(message._id) &&
+                                    String(message.sender_id) !==
+                                        String(me?.id || me?._id)
+                                ) {
+                                    // Show notification for new message from user
+                                    showNewMessageNotification(
+                                        activeUser?.name || "User",
+                                        message.content,
+                                        false
+                                    )
+
+                                    // Show in-app toast notification
+                                    setToast({
+                                        message: `Pesan baru dari ${
+                                            activeUser?.name || "User"
+                                        }`,
+                                        type: "info",
+                                    })
+                                }
+                            })
+
                             return newMessages.map((m) => ({
                                 ...m,
                                 _animate: true,
@@ -130,6 +191,18 @@ const AdminChat = () => {
                     const counts = {}
                     conversationsRes.data.forEach((conv) => {
                         counts[conv.other_user._id] = conv.unread_count
+
+                        // Check for new messages and show notifications
+                        if (conv.unread_count > 0 && conv.last_message) {
+                            const lastMessage = conv.last_message
+
+                            // Show notification for unread messages
+                            showNewMessageNotification(
+                                conv.other_user.name || "User",
+                                lastMessage.content,
+                                false
+                            )
+                        }
                     })
                     setUnreadCounts(counts)
                 }
@@ -166,6 +239,7 @@ const AdminChat = () => {
         try {
             setIsSending(true)
             const to_user_id = activeUser?.id || activeUser?._id
+
             const response = await messageService.sendMessage(
                 to_user_id,
                 input.trim()
@@ -175,9 +249,19 @@ const AdminChat = () => {
                 // Add the new message to the list
                 setMessages((prev) => [...prev, response.data])
                 setInput("")
+            } else {
+                console.error("Admin message send failed:", response)
+                setToast({
+                    message: response.message || "Gagal mengirim pesan",
+                    type: "error",
+                })
             }
         } catch (error) {
             console.error("Error sending message:", error)
+            setToast({
+                message: error.message || "Gagal mengirim pesan",
+                type: "error",
+            })
         } finally {
             setIsSending(false)
         }
@@ -216,17 +300,7 @@ const AdminChat = () => {
     }
 
     const formatTime = (dateString) => {
-        const date = new Date(dateString)
-        const diffMs = Date.now() - date.getTime()
-        const diffMin = Math.floor(diffMs / 60000)
-        if (diffMin < 60) {
-            if (diffMin <= 0) return "baru saja"
-            return `${diffMin} menit lalu`
-        }
-        return date.toLocaleTimeString("id-ID", {
-            hour: "2-digit",
-            minute: "2-digit",
-        })
+        return formatChatDate(dateString)
     }
 
     const renderUserList = (onItemClick) => (
@@ -289,7 +363,7 @@ const AdminChat = () => {
 
     return (
         <AdminLayout user={me}>
-            <div className="flex h-screen bg-gray-50">
+            <div className="chat-container flex h-screen bg-gray-50">
                 <div className="hidden md:flex md:shrink-0 border-r border-gray-200 bg-white">
                     {renderUserList((u) => setActiveUser(u))}
                 </div>
@@ -374,6 +448,7 @@ const AdminChat = () => {
                                 </div>
                                 <div className="ml-auto flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+
                                     <button
                                         onClick={deleteConversation}
                                         className="p-2 rounded-lg border border-gray-300 text-red-600 hover:bg-red-50"
@@ -428,63 +503,83 @@ const AdminChat = () => {
                                             </p>
                                         </div>
                                     ) : (
-                                        messages.map((msg) => {
+                                        messages.map((msg, index) => {
                                             const mine =
                                                 String(msg.sender_id) ===
                                                 String(me?.id || me?._id)
+
+                                            // Check if we need to show date separator
+                                            const showDateSeparator =
+                                                index === 0 ||
+                                                !isSameDay(
+                                                    msg.createdAt,
+                                                    messages[index - 1]
+                                                        .createdAt
+                                                )
+
                                             return (
-                                                <div
-                                                    key={msg._id}
-                                                    className={`flex items-end ${
-                                                        mine
-                                                            ? "justify-end"
-                                                            : "justify-start"
-                                                    } gap-2`}
-                                                >
-                                                    {!mine && (
-                                                        <div className="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white flex items-center justify-center text-xs font-semibold shadow">
-                                                            {activeUser.name
-                                                                ?.charAt(0)
-                                                                ?.toUpperCase() ||
-                                                                "U"}
+                                                <React.Fragment key={msg._id}>
+                                                    {showDateSeparator && (
+                                                        <div className="flex justify-center my-4">
+                                                            <div className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">
+                                                                {getDateSeparator(
+                                                                    msg.createdAt
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     )}
                                                     <div
-                                                        className={`relative max-w-[80%] md:max-w-md px-4 py-2 rounded-2xl shadow ${
+                                                        className={`flex items-end ${
                                                             mine
-                                                                ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white"
-                                                                : "bg-white border border-gray-200 text-gray-800"
-                                                        } ${
-                                                            msg._animate
-                                                                ? "animate-fade-in-up"
-                                                                : ""
-                                                        }`}
+                                                                ? "justify-end"
+                                                                : "justify-start"
+                                                        } gap-2`}
                                                     >
-                                                        <div className="text-sm">
-                                                            {msg.content}
-                                                        </div>
+                                                        {!mine && (
+                                                            <div className="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white flex items-center justify-center text-xs font-semibold shadow">
+                                                                {activeUser.name
+                                                                    ?.charAt(0)
+                                                                    ?.toUpperCase() ||
+                                                                    "U"}
+                                                            </div>
+                                                        )}
                                                         <div
-                                                            className={`mt-1 text-[10px] text-right ${
+                                                            className={`relative max-w-[80%] md:max-w-md px-4 py-2 rounded-2xl shadow ${
                                                                 mine
-                                                                    ? "text-blue-100"
-                                                                    : "text-gray-500"
+                                                                    ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white"
+                                                                    : "bg-white border border-gray-200 text-gray-800"
+                                                            } ${
+                                                                msg._animate
+                                                                    ? "animate-fade-in-up"
+                                                                    : ""
                                                             }`}
                                                         >
-                                                            {formatTime(
-                                                                msg.createdAt
+                                                            <div className="text-sm">
+                                                                {msg.content}
+                                                            </div>
+                                                            <div
+                                                                className={`mt-1 text-[10px] text-right ${
+                                                                    mine
+                                                                        ? "text-blue-100"
+                                                                        : "text-gray-500"
+                                                                }`}
+                                                            >
+                                                                {formatTime(
+                                                                    msg.createdAt
+                                                                )}
+                                                            </div>
+                                                            {/* Tails */}
+                                                            {mine ? (
+                                                                <span className="absolute -right-1 bottom-2 w-2 h-2 rotate-45 bg-indigo-600"></span>
+                                                            ) : (
+                                                                <span className="absolute -left-1 bottom-2 w-2 h-2 rotate-45 bg-white border-l border-b border-gray-200"></span>
                                                             )}
                                                         </div>
-                                                        {/* Tails */}
-                                                        {mine ? (
-                                                            <span className="absolute -right-1 bottom-2 w-2 h-2 rotate-45 bg-indigo-600"></span>
-                                                        ) : (
-                                                            <span className="absolute -left-1 bottom-2 w-2 h-2 rotate-45 bg-white border-l border-b border-gray-200"></span>
+                                                        {mine && (
+                                                            <div className="w-7 h-7"></div>
                                                         )}
                                                     </div>
-                                                    {mine && (
-                                                        <div className="w-7 h-7"></div>
-                                                    )}
-                                                </div>
+                                                </React.Fragment>
                                             )
                                         })
                                     )}
@@ -627,6 +722,15 @@ const AdminChat = () => {
                     )}
                 </div>
             </div>
+
+            {/* Toast Notification */}
+            {toast && (
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                />
+            )}
         </AdminLayout>
     )
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { Layout, Toast } from "../../components/ui"
 import { taxRecordService } from "../../services/taxRecordService"
+import { getImageURL } from "../../utils/imageUtils"
 
 const DetailTaxRecord = () => {
     const navigate = useNavigate()
@@ -258,137 +259,123 @@ const DetailTaxRecord = () => {
 
                 {/* Print Header */}
                 <div className="hidden print:block print:mb-1">
-                    <div className="text-center border-b border-gray-300 pb-1">
-                        <h1 className="text-3xl font-bold text-gray-900 mb-1 print:text-4xl">
-                            NOTA PEMBAYARAN PBB
-                        </h1>
-                        <p className="text-lg text-gray-600 print:text-lg">
-                            Pajak Bumi dan Bangunan
-                        </p>
-                        <p className="text-sm text-gray-500 mt-1 print:text-sm">
-                            Tanggal Cetak:{" "}
-                            {new Date().toLocaleDateString("id-ID")}
-                        </p>
+                    <div className="text-center border-b border-gray-400 pb-1">
+                        <div className="mb-1">
+                            <h1 className="text-2xl font-bold text-gray-900 mb-0 print:text-4xl print:font-black">
+                                NOTA PBB
+                            </h1>
+                            <p className="text-sm text-gray-700 print:text-lg print:font-semibold">
+                                Pajak Bumi dan Bangunan
+                            </p>
+                        </div>
+                        <div className="flex justify-between items-center text-xs text-gray-600 print:text-sm">
+                            <span>No: {record._id?.slice(-6) || "N/A"}</span>
+                            <span>
+                                {new Date().toLocaleDateString("id-ID")}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
                 {/* Detail Content */}
                 <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100 print:shadow-none print:border-none print:p-0 print:break-inside-avoid">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:gap-16">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 print:gap-4">
                         {/* Left Column - Basic Info */}
-                        <div className="space-y-6 print:space-y-2">
+                        <div className="space-y-6 print:space-y-1">
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-6 print:text-2xl print:mb-2">
-                                    Informasi Dasar
+                                <h3 className="text-lg font-semibold text-gray-900 mb-6 print:text-2xl print:mb-1 print:font-bold print:border-b print:border-gray-300 print:pb-1">
+                                    DATA WAJIB PAJAK
                                 </h3>
-                                <div className="space-y-6 print:space-y-2">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
+                                <div className="space-y-6 print:space-y-1">
+                                    <div className="print:border-b print:border-gray-200 print:pb-1">
+                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-0 print:font-semibold print:text-gray-700">
                                             Nama
                                         </label>
-                                        <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
+                                        <p className="text-lg font-semibold text-gray-900 print:text-lg print:font-bold print:text-gray-800">
                                             {record.name || "-"}
                                         </p>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
+                                    <div className="print:border-b print:border-gray-200 print:pb-1">
+                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-0 print:font-semibold print:text-gray-700">
                                             Alamat
                                         </label>
-                                        <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
+                                        <p className="text-lg font-semibold text-gray-900 print:text-base print:font-bold print:text-gray-800">
                                             {record.address || "-"}
                                         </p>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
-                                            Jenis Pajak
-                                        </label>
-                                        <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
-                                            {record.tax_type || "-"}
-                                        </p>
+                                    <div className="grid grid-cols-2 gap-4 print:gap-2">
+                                        <div className="print:border-b print:border-gray-200 print:pb-1">
+                                            <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-0 print:font-semibold print:text-gray-700">
+                                                Jenis Pajak
+                                            </label>
+                                            <p className="text-lg font-semibold text-gray-900 print:text-base print:font-bold print:text-gray-800">
+                                                {record.tax_type || "-"}
+                                            </p>
+                                        </div>
+                                        <div className="print:border-b print:border-gray-200 print:pb-1">
+                                            <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-0 print:font-semibold print:text-gray-700">
+                                                Tahun
+                                            </label>
+                                            <p className="text-lg font-semibold text-gray-900 print:text-base print:font-bold print:text-gray-800">
+                                                {record.year || "-"}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
-                                            Nomor SPT
+                                    <div className="print:border-b print:border-gray-200 print:pb-1">
+                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-0 print:font-semibold print:text-gray-700">
+                                            SPT
                                         </label>
-                                        <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
+                                        <p className="text-lg font-semibold text-gray-900 print:text-base print:font-bold print:text-gray-800">
                                             {record.spt_number || "-"}
                                         </p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
-                                            Tahun
-                                        </label>
-                                        <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
-                                            {record.year || "-"}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
-                                            Jumlah Pajak
-                                        </label>
-                                        <p className="text-2xl font-bold text-blue-600 print:text-4xl print:text-blue-800 print:font-bold">
-                                            {formatCurrency(record.amount)}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
-                                            Status Pembayaran
-                                        </label>
-                                        <span
-                                            className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                                                record.status
-                                            )} print:border-2 print:border-yellow-400 print:bg-yellow-100 print:text-yellow-800 print:px-1 print:py-0 print:text-sm print:font-semibold print:rounded-lg`}
-                                        >
-                                            {getStatusText(record.status)}
-                                        </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Right Column - Additional Info */}
-                        <div className="space-y-6 print:space-y-2">
+                        {/* Right Column - Payment Info */}
+                        <div className="space-y-6 print:space-y-1">
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-6 print:text-2xl print:mb-2">
-                                    Informasi Tambahan
+                                <h3 className="text-lg font-semibold text-gray-900 mb-6 print:text-2xl print:mb-1 print:font-bold print:border-b print:border-gray-300 print:pb-1">
+                                    PEMBAYARAN
                                 </h3>
-                                <div className="space-y-6 print:space-y-2">
-                                    <div className="grid grid-cols-2 gap-4 print:gap-3">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
-                                                Tanggal Jatuh Tempo
+                                <div className="space-y-6 print:space-y-1">
+                                    <div className="print:border-b print:border-gray-200 print:pb-1">
+                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-0 print:font-semibold print:text-gray-700">
+                                            Jumlah
+                                        </label>
+                                        <p className="text-3xl font-bold text-blue-600 print:text-3xl print:text-blue-800 print:font-black print:bg-blue-50 print:p-1 print:rounded print:border print:border-blue-200">
+                                            {formatCurrency(record.amount)}
+                                        </p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4 print:gap-2">
+                                        <div className="print:border-b print:border-gray-200 print:pb-1">
+                                            <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-0 print:font-semibold print:text-gray-700">
+                                                Status
                                             </label>
-                                            <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
+                                            <span
+                                                className={`inline-flex px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(
+                                                    record.status
+                                                )} print:border print:border-yellow-400 print:bg-yellow-100 print:text-yellow-800 print:px-1 print:py-0 print:text-sm print:font-bold print:rounded print:inline-block`}
+                                            >
+                                                {getStatusText(record.status)}
+                                            </span>
+                                        </div>
+                                        <div className="print:border-b print:border-gray-200 print:pb-1">
+                                            <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-0 print:font-semibold print:text-gray-700">
+                                                Jatuh Tempo
+                                            </label>
+                                            <p className="text-lg font-semibold text-gray-900 print:text-base print:font-bold print:text-gray-800">
                                                 {formatDate(record.due_date)}
                                             </p>
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
-                                                Tanggal Pembayaran
-                                            </label>
-                                            <p className="text-lg font-semibold text-gray-900 print:text-xl print:font-bold print:text-gray-800">
-                                                {formatDate(
-                                                    record.payment_date
-                                                )}
-                                            </p>
-                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
-                                            Deskripsi
+                                    <div className="print:border-b print:border-gray-200 print:pb-1">
+                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-0 print:font-semibold print:text-gray-700">
+                                            Tanggal Bayar
                                         </label>
-                                        <p className="text-gray-900 bg-gray-50 p-3 rounded-lg print:bg-gray-100 print:border print:border-gray-300 print:p-0 print:text-sm print:text-gray-800 print:font-medium">
-                                            {record.description ||
-                                                "Tidak ada deskripsi"}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-1 print:font-semibold">
-                                            Catatan
-                                        </label>
-                                        <p className="text-gray-900 bg-gray-50 p-3 rounded-lg print:bg-gray-100 print:border print:border-gray-300 print:p-0 print:text-sm print:text-gray-800 print:font-medium">
-                                            {record.notes ||
-                                                "Tidak ada catatan"}
+                                        <p className="text-lg font-semibold text-gray-900 print:text-base print:font-bold print:text-gray-800">
+                                            {formatDate(record.payment_date)}
                                         </p>
                                     </div>
                                 </div>
@@ -396,45 +383,142 @@ const DetailTaxRecord = () => {
                         </div>
                     </div>
 
-                    {/* Metadata */}
-                    <div className="mt-8 pt-6 border-t border-gray-200 print:mt-2 print:pt-1">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-500 print:text-sm print:gap-2 print:text-gray-600">
+                    {/* Combined Information Section */}
+                    <div className="mt-6 pt-4 border-t border-gray-200 print:mt-2 print:pt-1 print:border-t print:border-gray-300">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4 print:text-xl print:mb-1 print:font-bold">
+                            KETERANGAN
+                        </h3>
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 print:gap-3">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-0 print:font-semibold print:text-gray-700">
+                                    Deskripsi
+                                </label>
+                                <p className="text-gray-900 bg-gray-50 p-3 rounded-lg print:bg-gray-100 print:border print:border-gray-300 print:p-1 print:text-sm print:text-gray-800 print:font-medium print:min-h-4">
+                                    {record.description ||
+                                        "Tidak ada deskripsi"}
+                                </p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-500 print:text-sm print:mb-0 print:font-semibold print:text-gray-700">
+                                    Catatan
+                                </label>
+                                <p className="text-gray-900 bg-gray-50 p-3 rounded-lg print:bg-gray-100 print:border print:border-gray-300 print:p-1 print:text-sm print:text-gray-800 print:font-medium print:min-h-4">
+                                    {record.notes || "Tidak ada catatan"}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Compact Payment Proof Section */}
+                    {record.payment_proof && (
+                        <div className="mt-4 pt-3 border-t border-gray-200 print:mt-2 print:pt-1 print:border-t print:border-gray-300">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-3 print:text-lg print:mb-1 print:font-bold">
+                                BUKTI BAYAR
+                            </h3>
+                            <div className="flex justify-center">
+                                <div className="relative">
+                                    {(() => {
+                                        const imageURL = getImageURL(
+                                            record.payment_proof
+                                        )
+                                        console.log(
+                                            "Original path:",
+                                            record.payment_proof
+                                        )
+                                        console.log("Generated URL:", imageURL)
+                                        return (
+                                            <img
+                                                src={imageURL}
+                                                alt="Bukti pembayaran PBB"
+                                                crossOrigin="anonymous"
+                                                className="max-w-full max-h-96 rounded-lg border border-gray-300 shadow-lg print:max-h-32 print:border print:border-gray-400 print:rounded print:shadow-none"
+                                                onError={(e) => {
+                                                    console.error(
+                                                        "Image failed to load:",
+                                                        imageURL
+                                                    )
+                                                    e.target.style.display =
+                                                        "none"
+                                                    e.target.nextSibling.style.display =
+                                                        "block"
+                                                }}
+                                                onLoad={() => {
+                                                    console.log(
+                                                        "Image loaded successfully:",
+                                                        imageURL
+                                                    )
+                                                }}
+                                            />
+                                        )
+                                    })()}
+                                    <div
+                                        className="hidden bg-gray-100 border-2 border-gray-300 rounded-lg p-8 text-center print:block print:max-h-32 print:rounded"
+                                        style={{ display: "none" }}
+                                    >
+                                        <svg
+                                            className="w-16 h-16 text-gray-400 mx-auto mb-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                            />
+                                        </svg>
+                                        <p className="text-gray-500 text-sm print:text-sm print:font-semibold">
+                                            Bukti Pembayaran
+                                        </p>
+                                        <p className="text-gray-400 text-xs print:text-xs">
+                                            (Gambar tidak dapat ditampilkan)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Compact Footer with Signatures */}
+                    <div className="mt-4 pt-3 border-t border-gray-200 print:mt-2 print:pt-1 print:border-t print:border-gray-300">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-500 print:text-xs print:gap-1 print:text-gray-600 print:mb-2">
                             <div>
                                 <span className="font-medium">Dibuat:</span>{" "}
                                 {formatDate(record.createdAt)}
                             </div>
                             <div>
-                                <span className="font-medium">Diperbarui:</span>{" "}
+                                <span className="font-medium">Update:</span>{" "}
                                 {formatDate(record.updatedAt)}
                             </div>
                             <div>
                                 <span className="font-medium">ID:</span>{" "}
-                                {record._id}
+                                {record._id?.slice(-8)}
                             </div>
                         </div>
-                    </div>
 
-                    {/* Print Footer */}
-                    <div className="hidden print:block print:mt-2 print:pt-1 print:border-t print:border-gray-300">
-                        <div className="grid grid-cols-2 gap-2">
-                            <div className="text-center">
-                                <div className="border-t border-gray-300 pt-1 mt-1">
-                                    <p className="text-sm text-gray-500 print:text-sm">
-                                        Tanda Tangan
-                                    </p>
-                                    <p className="text-sm text-gray-500 mt-1 print:text-sm">
-                                        (_________________)
-                                    </p>
+                        {/* Print Footer - Compact for Single Page */}
+                        <div className="hidden print:block print:mt-2 print:pt-2 print:border-t print:border-gray-400">
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="text-center">
+                                    <div className="border-t border-gray-400 pt-1 mt-1">
+                                        <p className="text-sm text-gray-700 print:text-sm print:font-semibold print:mb-1">
+                                            Tanda Tangan
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1 print:text-sm print:mt-2">
+                                            (_________________)
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="text-center">
-                                <div className="border-t border-gray-300 pt-1 mt-1">
-                                    <p className="text-sm text-gray-500 print:text-sm">
-                                        Tanda Tangan
-                                    </p>
-                                    <p className="text-sm text-gray-500 mt-1 print:text-sm">
-                                        (_________________)
-                                    </p>
+                                <div className="text-center">
+                                    <div className="border-t border-gray-400 pt-1 mt-1">
+                                        <p className="text-sm text-gray-700 print:text-sm print:font-semibold print:mb-1">
+                                            Tanda Tangan
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1 print:text-sm print:mt-2">
+                                            (_________________)
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

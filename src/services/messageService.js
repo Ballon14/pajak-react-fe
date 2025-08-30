@@ -3,11 +3,16 @@ import api from "../config/api"
 export const messageService = {
     // Send a message
     sendMessage: async (to_user_id, content) => {
-        const response = await api.post("/messages/send", {
-            to_user_id,
-            content,
-        })
-        return response.data
+        try {
+            const response = await api.post("/messages/send", {
+                to_user_id,
+                content,
+            })
+            return response.data
+        } catch (error) {
+            console.error("messageService.sendMessage error:", error)
+            throw error
+        }
     },
 
     // Get conversation history
